@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
+import { addToCart } from '../cart'
 
 const bearPackages = [
   {
     id: 1,
     name: 'Package #1',
     price: 113,
-    image: '/pck1.jpeg',
+    image: '/PUT_IMAGE_NAME_HERE.jpeg',
     includes: 'Magic Bear + umbrella/bubbles + foil balloon + small bouquet',
     hasSinger: false,
   },
@@ -45,19 +46,20 @@ const BASKET_ITEMS = [
 function BearBooking() {
   const navigate = useNavigate()
   const [selected, setSelected] = useState(null)
+  const [quantity, setQuantity] = useState(1)
   const [recipient, setRecipient] = useState('')
   const [date, setDate] = useState('')
   const [time, setTime] = useState('')
   const [address, setAddress] = useState('')
   const [song, setSong] = useState('')
   const [error, setError] = useState('')
+  const [addedMsg, setAddedMsg] = useState('')
 
-  // Customization states
+  // Customization
   const [showCustom, setShowCustom] = useState(false)
   const [basketItems, setBasketItems] = useState([])
   const [basketDescription, setBasketDescription] = useState('')
 
-  const session = JSON.parse(localStorage.getItem('mp_session') || '{}')
   const today = new Date().toISOString().slice(0, 10)
 
   const toggleBasketItem = (item) => {
@@ -66,6 +68,7 @@ function BearBooking() {
 
   const openPackage = (pkg) => {
     setSelected(pkg)
+    setQuantity(1)
     setRecipient('')
     setDate('')
     setTime('')
@@ -77,12 +80,7 @@ function BearBooking() {
     setBasketDescription('')
   }
 
-  const handleBooking = () => {
-    if (!session.email) {
-      localStorage.setItem('mp_redirect', '/book-bear')
-      navigate('/login')
-      return
-    }
+  const handleAddToCart = () => {
     if (!recipient || !date || !time || !address) {
       setError('Please fill in all required fields.')
       return
@@ -92,17 +90,13 @@ function BearBooking() {
       return
     }
 
-    const orders = JSON.parse(localStorage.getItem('mp_orders') || '[]')
-    const newOrder = {
-      id: 'MP-' + Math.random().toString(36).slice(2, 8).toUpperCase(),
-      ref: '#' + Math.floor(10000 + Math.random() * 90000),
+    addToCart({
       type: 'bear',
       product: selected.name,
       price: selected.price,
+      image: selected.image,
       includes: selected.includes,
-      customer: session.name,
-      customerEmail: session.email,
-      customerPhone: session.phone,
+      quantity,
       recipient,
       date,
       time,
@@ -111,20 +105,24 @@ function BearBooking() {
       basketItems,
       basketDescription,
       deliveryType: 'delivery',
-      status: 'pending',
-      createdAt: new Date().toISOString(),
-    }
+    })
 
-    localStorage.setItem('mp_orders', JSON.stringify([...orders, newOrder]))
-    localStorage.setItem('mp_lastOrder', JSON.stringify(newOrder))
+    setAddedMsg(`✅ ${quantity} × ${selected.name} added to cart!`)
     setSelected(null)
-    navigate('/order-confirm')
+    setTimeout(() => setAddedMsg(''), 3000)
   }
 
   return (
     <div className="min-h-screen bg-pink-50">
 
       <Navbar />
+
+      {/* Added to cart popup */}
+      {addedMsg && (
+        <div className="fixed top-20 right-4 bg-green-500 text-white px-5 py-3 rounded-full shadow-lg z-50 font-semibold animate-bounce">
+          {addedMsg}
+        </div>
+      )}
 
       {/* Hero */}
       <div className="bg-gradient-to-r from-pink-700 to-pink-500 text-white px-6 py-10 text-center">
@@ -137,7 +135,7 @@ function BearBooking() {
       {/* Info banner */}
       <div className="max-w-6xl mx-auto px-6 mt-6">
         <div className="bg-pink-100 border border-pink-300 rounded-lg p-3 text-pink-800 text-sm">
-           Want to add items for kids? Tap any package and hit <strong>Customize My Order</strong> to build a personalized gift basket on top of your package!
+          🎁 Want to add items for kids? Tap any package and hit <strong>Customize My Order</strong> to build a personalized gift basket on top of your package!
         </div>
       </div>
 
@@ -152,10 +150,9 @@ function BearBooking() {
               key={pkg.id}
               onClick={() => openPackage(pkg)}
               className={`bg-white rounded-2xl shadow border border-pink-100 overflow-hidden hover:shadow-xl transition cursor-pointer hover:-translate-y-1 ${pkg.id === 3 ? 'ring-2 ring-pink-400' : ''}`}
-            >    
-
-              <div className="bg-pink-100 h-72 overflow-hidden">
-                <img src={pkg.image} alt={pkg.name} className="w-full h-full object-cover" style={{objectPosition: 'center top'}} />
+            >
+              <div className="bg-pink-100 aspect-square overflow-hidden">
+                <img src={pkg.image} alt={pkg.name} className="w-full h-full object-cover" />
               </div>
 
               <div className="p-5">
@@ -207,11 +204,28 @@ function BearBooking() {
                 </div>
               )}
 
+              {/* Quantity */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-600 mb-2">Quantity</label>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="w-10 h-10 rounded-full bg-pink-100 hover:bg-pink-200 text-pink-700 font-bold text-xl"
+                  >−</button>
+                  <span className="w-12 text-center font-bold text-lg">{quantity}</span>
+                  <button
+                    onClick={() => setQuantity(quantity + 1)}
+                    className="w-10 h-10 rounded-full bg-pink-100 hover:bg-pink-200 text-pink-700 font-bold text-xl"
+                  >+</button>
+                  <span className="text-sm text-gray-500 ml-2">
+                    Subtotal: <strong className="text-pink-600">BZD ${selected.price * quantity}</strong>
+                  </span>
+                </div>
+              </div>
+
               {/* Recipient */}
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-600 mb-1">
-                  Recipient's Name
-                </label>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Recipient's Name</label>
                 <input
                   value={recipient}
                   onChange={e => setRecipient(e.target.value)}
@@ -223,9 +237,7 @@ function BearBooking() {
               {/* Date and Time */}
               <div className="grid grid-cols-2 gap-3 mb-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">
-                    Delivery Date
-                  </label>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">Delivery Date</label>
                   <input
                     type="date"
                     value={date}
@@ -235,9 +247,7 @@ function BearBooking() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">
-                    Delivery Time
-                  </label>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">Delivery Time</label>
                   <input
                     type="time"
                     value={time}
@@ -249,9 +259,7 @@ function BearBooking() {
 
               {/* Address */}
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-600 mb-1">
-                  Delivery Address / Location
-                </label>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Delivery Address / Location</label>
                 <input
                   value={address}
                   onChange={e => setAddress(e.target.value)}
@@ -266,9 +274,7 @@ function BearBooking() {
                   <label className="block text-sm font-semibold text-pink-700 mb-1">
                     🎤 Song Request for the Solo Singer
                   </label>
-                  <p className="text-xs text-gray-500 mb-2">
-                    Your solo singer will perform a song of your choice!
-                  </p>
+                  <p className="text-xs text-gray-500 mb-2">Your solo singer will perform a song of your choice!</p>
                   <input
                     value={song}
                     onChange={e => setSong(e.target.value)}
@@ -312,9 +318,7 @@ function BearBooking() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">
-                      📝 Any other details?
-                    </label>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">📝 Any other details?</label>
                     <textarea
                       value={basketDescription}
                       onChange={e => setBasketDescription(e.target.value)}
@@ -325,16 +329,16 @@ function BearBooking() {
                 </div>
               )}
 
-              {/* Submit Button */}
+              {/* Add to Cart Button */}
               <button
-                onClick={handleBooking}
+                onClick={handleAddToCart}
                 className="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 rounded-full transition text-lg"
               >
-                🐻 Confirm Booking — BZD ${selected.price}
+                🛒 Add to Cart — BZD ${selected.price * quantity}
               </button>
 
               <p className="text-center text-xs text-gray-400 mt-2">
-                Our team will contact you to confirm all details{basketItems.length > 0 || basketDescription ? ' and final price with customizations' : ''}
+                You can review everything in your cart before placing your order
               </p>
 
             </div>

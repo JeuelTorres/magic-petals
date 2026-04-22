@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
+import { addToCart } from '../cart'
 
 const bouquets = [
   { id: 1,  roses: 5,   price: 28,  image: "/5.jpeg", description: 'A sweet and intimate bouquet — perfect for a simple "thinking of you" moment.' },
@@ -26,61 +27,22 @@ const naturalFlowers = [
 ]
 
 const EXTRAS = [
-  {
-    id: 'message',
-    label: '💌 Message Card',
-    desc: 'Add a personal message card',
-    question: 'What would you like written on the message card?',
-    placeholder: 'e.g. "Happy Birthday! Love you so much 💕"',
-    hasImage: false,
-  },
-  {
-    id: 'balloon',
-    label: '🎈 Foil Balloon',
-    desc: 'Add a festive foil balloon',
-    question: 'What should go on the foil balloon?',
-    placeholder: 'e.g. "Happy Birthday", "I Love You", "Congratulations"',
-    hasImage: true,
-  },
-  {
-    id: 'chocolates',
-    label: '🍫 Chocolates',
-    desc: 'Add a box of chocolates',
-    question: 'What type of chocolates would you like?',
-    placeholder: 'e.g. Milk chocolate, Dark chocolate, Ferrero Rocher, Mixed assortment',
-    hasImage: false,
-  },
-  {
-    id: 'teddy',
-    label: '🧸 Small Teddy Bear',
-    desc: 'Add a cute small teddy bear',
-    question: 'Any preference for the teddy bear?',
-    placeholder: 'e.g. Color preference, size, or any specific style',
-    hasImage: true,
-  },
-  {
-    id: 'ribbon',
-    label: '🎀 Premium Ribbon',
-    desc: 'Upgrade to a premium satin ribbon',
-    question: 'What color or style ribbon would you like?',
-    placeholder: 'e.g. Red satin, White lace, Gold metallic',
-    hasImage: false,
-  },
-  {
-    id: 'box',
-    label: '📦 Gift Box',
-    desc: 'Present in a luxury gift box',
-    question: 'Any preference for the gift box?',
-    placeholder: 'e.g. Color, style, or any special requests for the box',
-    hasImage: false,
-  },
+  { id: 'message',    label: '💌 Message Card',    desc: 'Add a personal message card',   question: 'What would you like written on the message card?', placeholder: 'e.g. "Happy Birthday! Love you so much 💕"', hasImage: false },
+  { id: 'balloon',    label: '🎈 Foil Balloon',    desc: 'Add a festive foil balloon',    question: 'What should go on the foil balloon?',            placeholder: 'e.g. "Happy Birthday", "I Love You"',         hasImage: true  },
+  { id: 'chocolates', label: '🍫 Chocolates',      desc: 'Add a box of chocolates',       question: 'What type of chocolates would you like?',        placeholder: 'e.g. Milk, Dark, Ferrero Rocher, Mixed',       hasImage: false },
+  { id: 'teddy',      label: '🧸 Small Teddy Bear', desc: 'Add a cute small teddy bear',   question: 'Any preference for the teddy bear?',             placeholder: 'e.g. Color, size, style',                      hasImage: true  },
+  { id: 'ribbon',     label: '🎀 Premium Ribbon',  desc: 'Upgrade to a premium ribbon',   question: 'What color or style ribbon would you like?',     placeholder: 'e.g. Red satin, White lace, Gold metallic',    hasImage: false },
+  { id: 'box',        label: '📦 Gift Box',        desc: 'Present in a luxury gift box',  question: 'Any preference for the gift box?',               placeholder: 'e.g. Color, style, special requests',          hasImage: false },
 ]
 
 function ProductCatalog() {
   const navigate = useNavigate()
   const [selected, setSelected] = useState(null)
   const [showCustom, setShowCustom] = useState(false)
+  const [quantity, setQuantity] = useState(1)
   const [address, setAddress] = useState('')
+  const [date, setDate] = useState('')
+  const [time, setTime] = useState('')
   const [notes, setNotes] = useState('')
   const [extras, setExtras] = useState([])
   const [extraDetails, setExtraDetails] = useState({})
@@ -89,8 +51,10 @@ function ProductCatalog() {
   const [deliveryType, setDeliveryType] = useState('delivery')
   const [flowerTypes, setFlowerTypes] = useState([])
   const [customFlower, setCustomFlower] = useState('')
+  const [error, setError] = useState('')
+  const [addedMsg, setAddedMsg] = useState('')
 
-  const session = JSON.parse(localStorage.getItem('mp_session') || '{}')
+  const today = new Date().toISOString().slice(0, 10)
 
   const toggleExtra = (id) => {
     setExtras(prev => {
@@ -102,28 +66,22 @@ function ProductCatalog() {
         setExtraDetails(newDetails)
         setExtraImages(newImages)
         return prev.filter(e => e !== id)
-      } else {
-        return [...prev, id]
       }
+      return [...prev, id]
     })
   }
 
-  const updateExtraDetail = (id, value) => {
-    setExtraDetails(prev => ({ ...prev, [id]: value }))
-  }
-
-  const updateExtraImage = (id, file) => {
-    setExtraImages(prev => ({ ...prev, [id]: file }))
-  }
-
-  const toggleFlowerType = (type) => {
-    setFlowerTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type])
-  }
+  const updateExtraDetail = (id, value) => setExtraDetails(prev => ({ ...prev, [id]: value }))
+  const updateExtraImage  = (id, file)  => setExtraImages(prev => ({ ...prev, [id]: file }))
+  const toggleFlowerType = (type) => setFlowerTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type])
 
   const openCard = (b) => {
     setSelected(b)
     setShowCustom(false)
+    setQuantity(1)
     setAddress('')
+    setDate('')
+    setTime('')
     setNotes('')
     setExtras([])
     setExtraDetails({})
@@ -132,60 +90,57 @@ function ProductCatalog() {
     setDeliveryType('delivery')
     setFlowerTypes([])
     setCustomFlower('')
+    setError('')
   }
 
-  const handleOrder = () => {
-    if (!session.email) {
-      localStorage.setItem('mp_redirect', '/catalog')
-      navigate('/login')
+  const handleAddToCart = () => {
+    if (!date || !time) {
+      setError('Please pick a delivery date and time.')
       return
     }
     if (deliveryType === 'delivery' && !address) {
-      return alert('Please enter a delivery address.')
+      setError('Please enter a delivery address.')
+      return
     }
 
-    const orders = JSON.parse(localStorage.getItem('mp_orders') || '[]')
     const productName = selected.roses
       ? selected.roses + ' Roses (Eternal)'
       : selected.name + ' (Natural)'
 
-    const newOrder = {
-      id: 'MP-' + Math.random().toString(36).slice(2, 8).toUpperCase(),
-      ref: '#' + Math.floor(10000 + Math.random() * 90000),
+    addToCart({
       type: 'bouquet',
       product: productName,
       price: selected.price,
-      customer: session.name,
-      customerEmail: session.email,
-      customerPhone: session.phone,
+      image: selected.image,
+      quantity,
       deliveryType,
       address,
+      date,
+      time,
       notes,
       extras,
       extraDetails,
       flowerTypes,
       customFlower,
       hasInspo: !!inspoFile,
-      date: new Date().toISOString().slice(0, 10),
-      status: 'pending',
-      createdAt: new Date().toISOString(),
-    }
+    })
 
-    localStorage.setItem('mp_orders', JSON.stringify([...orders, newOrder]))
-    localStorage.setItem('mp_lastOrder', JSON.stringify(newOrder))
+    setAddedMsg(`✅ ${quantity} × ${productName} added to cart!`)
     setSelected(null)
-    setShowCustom(false)
-    setExtras([])
-    setExtraDetails({})
-    setExtraImages({})
-    setInspoFile(null)
-    navigate('/order-confirm')
+    setTimeout(() => setAddedMsg(''), 3000)
   }
 
   return (
     <div className="min-h-screen bg-pink-50">
 
       <Navbar />
+
+      {/* Added to cart popup */}
+      {addedMsg && (
+        <div className="fixed top-20 right-4 bg-green-500 text-white px-5 py-3 rounded-full shadow-lg z-50 font-semibold animate-bounce">
+          {addedMsg}
+        </div>
+      )}
 
       {/* Hero */}
       <div className="bg-gradient-to-r from-pink-700 to-pink-500 text-white px-6 py-10 text-center">
@@ -262,9 +217,7 @@ function ProductCatalog() {
                   <div className="overflow-hidden rounded-2xl mb-4">
                     <img src={selected.image} alt={selected.roses ? `${selected.roses} Eternal Roses` : selected.name} className="w-full h-56 object-cover object-center" />
                   </div>
-                  <h3 className="text-2xl font-bold">
-                    {selected.roses ? `${selected.roses} Eternal Roses` : selected.name}
-                  </h3>
+                  <h3 className="text-2xl font-bold">{selected.roses ? `${selected.roses} Eternal Roses` : selected.name}</h3>
                   <p className="text-pink-200 text-sm mt-1">{selected.description}</p>
                 </div>
                 <button onClick={() => setSelected(null)} className="text-white text-2xl hover:opacity-70">✕</button>
@@ -274,11 +227,34 @@ function ProductCatalog() {
 
             <div className="p-6">
 
+              {error && (
+                <div className="bg-red-50 text-red-600 border border-red-200 rounded-lg p-3 mb-4 text-sm">
+                  ⚠️ {error}
+                </div>
+              )}
+
+              {/* Quantity */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-600 mb-2">Quantity</label>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="w-10 h-10 rounded-full bg-pink-100 hover:bg-pink-200 text-pink-700 font-bold text-xl"
+                  >−</button>
+                  <span className="w-12 text-center font-bold text-lg">{quantity}</span>
+                  <button
+                    onClick={() => setQuantity(quantity + 1)}
+                    className="w-10 h-10 rounded-full bg-pink-100 hover:bg-pink-200 text-pink-700 font-bold text-xl"
+                  >+</button>
+                  <span className="text-sm text-gray-500 ml-2">
+                    Subtotal: <strong className="text-pink-600">BZD ${selected.price * quantity}</strong>
+                  </span>
+                </div>
+              </div>
+
               {/* Delivery or Pickup */}
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-600 mb-2">
-                  How would you like to receive your order?
-                </label>
+                <label className="block text-sm font-medium text-gray-600 mb-2">How would you like to receive your order?</label>
                 <div className="grid grid-cols-2 gap-3 mb-3">
                   <div
                     onClick={() => setDeliveryType('delivery')}
@@ -288,7 +264,6 @@ function ProductCatalog() {
                   >
                     <div className="text-2xl mb-1">🚗</div>
                     <div className="font-semibold text-sm text-gray-700">Delivery</div>
-                    <div className="text-xs text-gray-400">We come to you</div>
                   </div>
                   <div
                     onClick={() => setDeliveryType('pickup')}
@@ -298,7 +273,6 @@ function ProductCatalog() {
                   >
                     <div className="text-2xl mb-1">🏪</div>
                     <div className="font-semibold text-sm text-gray-700">Pick Up</div>
-                    <div className="text-xs text-gray-400">Collect at our shop</div>
                   </div>
                 </div>
 
@@ -317,19 +291,44 @@ function ProductCatalog() {
                 )}
               </div>
 
-              {/* Flower Type Selection — only for Natural */}
+              {/* Date and Time */}
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">
+                    {deliveryType === 'pickup' ? 'Pickup Date' : 'Delivery Date'}
+                  </label>
+                  <input
+                    type="date"
+                    value={date}
+                    min={today}
+                    onChange={e => setDate(e.target.value)}
+                    className="w-full border border-pink-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-pink-400"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">
+                    {deliveryType === 'pickup' ? 'Pickup Time' : 'Delivery Time'}
+                  </label>
+                  <input
+                    type="time"
+                    value={time}
+                    onChange={e => setTime(e.target.value)}
+                    className="w-full border border-pink-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-pink-400"
+                  />
+                </div>
+              </div>
+
+              {/* Flower Type — only for Natural */}
               {!selected.roses && (
                 <div className="mb-4 bg-pink-50 border border-pink-200 rounded-lg p-3">
                   <p className="text-sm font-medium text-pink-700 mb-2">🌺 Which flowers would you like?</p>
                   <div className="grid grid-cols-3 gap-2 mb-3">
-                    {['Roses', 'Tulips', 'Sunflowers', 'Daisies', 'Lilies', 'Dahlias'].map(type => (
+                    {['🌹 Roses', '🌷 Tulips', '🌻 Sunflowers', '🌼 Daisies', '🌸 Lilies', '💐 Mixed'].map(type => (
                       <div
                         key={type}
                         onClick={() => toggleFlowerType(type)}
                         className={`border-2 rounded-lg p-2 cursor-pointer text-xs text-center transition ${
-                          flowerTypes.includes(type)
-                            ? 'border-pink-500 bg-pink-100 text-pink-700 font-semibold'
-                            : 'border-white text-gray-600 hover:border-pink-300 bg-white'
+                          flowerTypes.includes(type) ? 'border-pink-500 bg-pink-100 text-pink-700 font-semibold' : 'border-white text-gray-600 hover:border-pink-300 bg-white'
                         }`}
                       >
                         {type}
@@ -351,7 +350,7 @@ function ProductCatalog() {
                 onClick={() => setShowCustom(!showCustom)}
                 className="w-full border-2 border-pink-400 text-pink-600 font-semibold py-2 rounded-full mb-4 hover:bg-pink-50 transition"
               >
-                {showCustom ? '✕ Hide Customization' : 'Customize My Order'}
+                {showCustom ? '✕ Hide Customization' : '✨ Customize My Order'}
               </button>
 
               {/* Customization Section */}
@@ -366,9 +365,7 @@ function ProductCatalog() {
                         <div
                           onClick={() => toggleExtra(ex.id)}
                           className={`border-2 rounded-lg p-2 cursor-pointer text-xs transition ${
-                            extras.includes(ex.id)
-                              ? 'border-pink-500 bg-pink-100 text-pink-700'
-                              : 'border-gray-200 text-gray-600 hover:border-pink-300 bg-white'
+                            extras.includes(ex.id) ? 'border-pink-500 bg-pink-100 text-pink-700' : 'border-gray-200 text-gray-600 hover:border-pink-300 bg-white'
                           }`}
                         >
                           <div className="font-semibold">{ex.label}</div>
@@ -414,15 +411,11 @@ function ProductCatalog() {
                       onChange={e => setInspoFile(e.target.files[0])}
                       className="w-full text-sm text-gray-500 file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-pink-100 file:text-pink-700 file:text-xs"
                     />
-                    {inspoFile && (
-                      <p className="text-xs text-green-600 mt-1">✅ Photo attached: {inspoFile.name}</p>
-                    )}
+                    {inspoFile && <p className="text-xs text-green-600 mt-1">✅ Photo attached: {inspoFile.name}</p>}
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">
-                      📝 Any other special requests?
-                    </label>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">📝 Any other special requests?</label>
                     <textarea
                       value={notes}
                       onChange={e => setNotes(e.target.value)}
@@ -433,18 +426,16 @@ function ProductCatalog() {
                 </div>
               )}
 
-              {/* Order Button */}
+              {/* Add to Cart Button */}
               <button
-                onClick={handleOrder}
-                className={`w-full text-white font-bold py-3 rounded-full transition text-lg ${
-                  selected.roses ? 'bg-pink-600 hover:bg-pink-700' : 'bg-pink-700 hover:bg-pink-800'
-                }`}
+                onClick={handleAddToCart}
+                className="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 rounded-full transition text-lg"
               >
-                Confirm Order — BZD ${selected.price}
+                🛒 Add to Cart — BZD ${selected.price * quantity}
               </button>
 
               <p className="text-center text-xs text-gray-400 mt-2">
-                Our team will contact you to confirm all details
+                You can review everything in your cart before placing your order
               </p>
 
             </div>
