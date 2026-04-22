@@ -102,6 +102,7 @@ function BearBooking() {
       includes: selected.includes,
       customer: session.name,
       customerEmail: session.email,
+      customerPhone: session.phone,
       recipient,
       date,
       time,

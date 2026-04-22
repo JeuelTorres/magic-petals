@@ -4,14 +4,19 @@ import { useNavigate } from 'react-router-dom'
 function Register() {
   const navigate = useNavigate()
   const [name, setName] = useState('')
+  const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState('')
 
   const handleRegister = () => {
-    if (!name || !email || !password || !confirm) {
+    if (!name || !email || !phone || !password || !confirm) {
       setError('All fields are required.')
+      return
+    }
+    if (!/^\d{7,}$/.test(phone.replace(/\D/g, ''))) {
+      setError('Please enter a valid phone number (digits only, at least 7 digits).')
       return
     }
     if (password !== confirm) {
@@ -29,7 +34,7 @@ function Register() {
       return
     }
 
-    const newUser = { name, email, password, role: 'customer' }
+    const newUser = { name, email, phone, password, role: 'customer' }
     localStorage.setItem('mp_users', JSON.stringify([...users, newUser]))
     localStorage.setItem('mp_session', JSON.stringify(newUser))
     navigate('/catalog')
@@ -73,6 +78,18 @@ function Register() {
             placeholder="you@email.com"
             className="w-full border border-pink-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-pink-400"
           />
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-600 mb-1">Phone Number (WhatsApp)</label>
+          <input
+            type="tel"
+            value={phone}
+            onChange={e => setPhone(e.target.value)}
+            placeholder="e.g. 6011234 or 5016011234"
+            className="w-full border border-pink-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-pink-400"
+          />
+          <p className="text-xs text-gray-400 mt-1">We'll use this to WhatsApp you when your order is ready.</p>
         </div>
 
         <div className="mb-4">

@@ -35,6 +35,37 @@ function OrderManage() {
     localStorage.setItem('mp_orders', JSON.stringify(updated))
   }
 
+  const sendWhatsApp = (order) => {
+    if (!order.customerPhone) {
+      alert('No phone number on file for this customer.')
+      return
+    }
+
+    // Pre-written message based on order status
+    let message = ''
+    if (order.status === 'pending') {
+      message = `Hi ${order.customer}! 🌸 This is Magic Pettals. We've received your order ${order.ref} for ${order.product}. We'll contact you shortly to confirm all the details. Thank you!`
+    } else if (order.status === 'active') {
+      message = `Hi ${order.customer}! 🌸 This is Magic Pettals. Your order ${order.ref} (${order.product}) is being prepared${order.deliveryType === 'pickup' ? ' and will be ready for pickup soon!' : ' and will be delivered soon!'} 💕`
+    } else if (order.status === 'completed') {
+      message = `Hi ${order.customer}! 🌸 Your Magic Pettals order ${order.ref} is ready! ${order.deliveryType === 'pickup' ? 'You can pick it up at our shop.' : 'We will deliver it at the scheduled time.'} Thank you for choosing us! 💕`
+    } else {
+      message = `Hi ${order.customer}! 🌸 This is Magic Pettals regarding your order ${order.ref}.`
+    }
+
+    // Clean phone number — keep only digits
+    let phone = order.customerPhone.replace(/\D/g, '')
+
+    // Add Belize country code (501) if it's missing
+    if (!phone.startsWith('501') && phone.length <= 8) {
+      phone = '501' + phone
+    }
+
+    // Open WhatsApp with the pre-written message
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
+    window.open(url, '_blank')
+  }
+
   // Filter by search + status
   const filtered = orders.filter(o => {
     if (filter !== 'all' && o.status !== filter) return false
@@ -72,7 +103,7 @@ function OrderManage() {
         {/* Header */}
         <div className="mb-6">
           <h2 className="text-3xl font-bold text-gray-800">📋 Order Management</h2>
-          <p className="text-gray-500">Confirm, update, or cancel customer orders</p>
+          <p className="text-gray-500">Confirm, update, or cancel customer orders — and message them on WhatsApp</p>
         </div>
 
         {/* Search + Filter */}
@@ -139,16 +170,19 @@ function OrderManage() {
                       <td className="px-4 py-3">
                         <p className="font-semibold text-gray-800">{order.customer}</p>
                         <p className="text-xs text-gray-400">{order.customerEmail}</p>
+                        {order.customerPhone && (
+                          <p className="text-xs text-gray-400">📞 {order.customerPhone}</p>
+                        )}
                       </td>
                       <td className="px-4 py-3">
                         <p className="text-gray-700">
-                        {order.type === 'bear' ? '' : order.type === 'basket' ? '' : ''}{' '}
+                          {order.type === 'bear' ? '🐻' : order.type === 'basket' ? '🎁' : '🌹'}{' '}
                           {order.product}
                         </p>
                       </td>
                       <td className="px-4 py-3 text-gray-600">
                         <p>{order.date}</p>
-                        {order.time && <p className="text-xs text-gray-400"> {order.time}</p>}
+                        {order.time && <p className="text-xs text-gray-400">⏰ {order.time}</p>}
                       </td>
                       <td className="px-4 py-3 font-bold text-pink-600">
                         {typeof order.price === 'number' ? `$${order.price}` : order.price}
@@ -190,6 +224,20 @@ function OrderManage() {
                               ↻ Reopen
                             </button>
                           )}
+                          <button
+                            onClick={() => sendWhatsApp(order)}
+                            className="text-xs bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-full transition"
+                            title="Message on WhatsApp"
+                          >
+                            💬 WhatsApp
+                          </button>
+                          <button
+                            onClick={() => deleteOrder(order.id)}
+                            className="text-xs bg-gray-500 hover:bg-red-600 text-white px-3 py-1 rounded-full transition"
+                            title="Delete order"
+                          >
+                            🗑️
+                          </button>
                         </div>
                       </td>
                     </tr>

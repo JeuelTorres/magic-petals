@@ -157,6 +157,7 @@ function ProductCatalog() {
       price: selected.price,
       customer: session.name,
       customerEmail: session.email,
+      customerPhone: session.phone,
       deliveryType,
       address,
       notes,
