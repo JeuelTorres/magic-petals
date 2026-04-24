@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { api } from '../api'
 
 function Register() {
   const navigate = useNavigate()
@@ -10,7 +11,7 @@ function Register() {
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState('')
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (!name || !email || !phone || !password || !confirm) {
       setError('All fields are required.')
       return
@@ -23,21 +24,14 @@ function Register() {
       setError('Passwords do not match.')
       return
     }
-    if (email === 'admin@magicpettals.com') {
-      setError('That email is reserved. Choose another.')
-      return
-    }
 
-    const users = JSON.parse(localStorage.getItem('mp_users') || '[]')
-    if (users.find(u => u.email === email)) {
-      setError('Email already registered.')
-      return
+    try {
+      const { user } = await api.register({ name, email, phone, password })
+      localStorage.setItem('mp_session', JSON.stringify(user))
+      navigate('/catalog')
+    } catch (err) {
+      setError(err.message)
     }
-
-    const newUser = { name, email, phone, password, role: 'customer' }
-    localStorage.setItem('mp_users', JSON.stringify([...users, newUser]))
-    localStorage.setItem('mp_session', JSON.stringify(newUser))
-    navigate('/catalog')
   }
 
   return (

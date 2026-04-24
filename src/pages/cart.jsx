@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import { getCart, removeFromCart, updateQuantity, clearCart, getCartTotal } from '../cart'
+import { api } from '../api'
 
 function Cart() {
   const navigate = useNavigate()
@@ -27,7 +28,7 @@ function Cart() {
     refresh()
   }
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     const session = JSON.parse(localStorage.getItem('mp_session') || '{}')
     if (!session.email) {
       localStorage.setItem('mp_redirect', '/cart')
@@ -37,37 +38,16 @@ function Cart() {
 
     if (items.length === 0) return
 
-    // Turn each cart item into a separate order (one per quantity)
-    const orders = JSON.parse(localStorage.getItem('mp_orders') || '[]')
-    const placedOrders = []
+    try {
+      const { orders: placedOrders } = await api.createOrder(session.id, items)
 
-    items.forEach(item => {
-      const qty = item.quantity || 1
-      for (let i = 0; i < qty; i++) {
-        const newOrder = {
-          id: 'MP-' + Math.random().toString(36).slice(2, 8).toUpperCase(),
-          ref: '#' + Math.floor(10000 + Math.random() * 90000),
-          customer: session.name,
-          customerEmail: session.email,
-          customerPhone: session.phone,
-          status: 'pending',
-          createdAt: new Date().toISOString(),
-          ...item,
-        }
-        delete newOrder.cartId
-        delete newOrder.quantity
-        orders.push(newOrder)
-        placedOrders.push(newOrder)
-      }
-    })
-
-    localStorage.setItem('mp_orders', JSON.stringify(orders))
-    localStorage.setItem('mp_lastOrder', JSON.stringify(placedOrders[0]))
-    // Save the IDs of the orders we just placed so the confirm page knows to show them all
-    localStorage.setItem('mp_justPlaced', JSON.stringify(placedOrders.map(o => o.id)))
-    clearCart()
-    navigate('/order-confirm')
-    
+      // Store the placed orders for the confirmation page
+      localStorage.setItem('mp_justPlacedOrders', JSON.stringify(placedOrders))
+      clearCart()
+      navigate('/order-confirm')
+    } catch (err) {
+      alert('Failed to place order: ' + err.message)
+    }
   }
 
   const typeIcon = (t) => t === 'bear' ? '🐻' : t === 'basket' ? '🎁' : '🌹'
@@ -144,6 +124,9 @@ function Cart() {
                       ) : item.address ? (
                         <p>📍 {item.address}</p>
                       ) : null}
+                      {item.roseColor && (
+                        <p>🌹 Color: {item.roseColor}</p>
+                      )}
                       {item.flowerTypes?.length > 0 && (
                         <p>🌺 {item.flowerTypes.join(', ')}</p>
                       )}

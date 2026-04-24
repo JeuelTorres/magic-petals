@@ -11,7 +11,6 @@ const pool = mysql.createPool({
   connectionLimit: 10,
 })
 
-// Test connection on startup
 pool.getConnection()
   .then(conn => {
     console.log('✅ Connected to MySQL database')

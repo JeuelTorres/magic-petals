@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { api } from '../api'
 
 function Login() {
   const navigate = useNavigate()
@@ -7,31 +8,26 @@ function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!email || !password) {
       setError('Please fill in all fields.')
       return
     }
 
-    if (email === 'admin@magicpettals.com' && password === 'admin123') {
-      const adminUser = { name: 'Admin', email: 'admin@magicpettals.com', role: 'admin' }
-      localStorage.setItem('mp_session', JSON.stringify(adminUser))
-      navigate('/admin')
-      return
+    try {
+      const { user } = await api.login(email, password)
+      localStorage.setItem('mp_session', JSON.stringify(user))
+
+      if (user.role === 'admin') {
+        navigate('/admin')
+      } else {
+        const redirect = localStorage.getItem('mp_redirect') || '/catalog'
+        localStorage.removeItem('mp_redirect')
+        navigate(redirect)
+      }
+    } catch (err) {
+      setError(err.message)
     }
-
-    const users = JSON.parse(localStorage.getItem('mp_users') || '[]')
-    const found = users.find(u => u.email === email && u.password === password)
-
-    if (!found) {
-      setError('Invalid email or password.')
-      return
-    }
-
-    localStorage.setItem('mp_session', JSON.stringify(found))
-    const redirect = localStorage.getItem('mp_redirect') || '/catalog'
-localStorage.removeItem('mp_redirect')
-navigate(redirect)
   }
 
   return (

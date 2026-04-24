@@ -1,34 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import { addToCart } from '../cart'
-
-const bearPackages = [
-  {
-    id: 1,
-    name: 'Package #1',
-    price: 113,
-    image: '/PUT_IMAGE_NAME_HERE.jpeg',
-    includes: 'Magic Bear + umbrella/bubbles + foil balloon + small bouquet',
-    hasSinger: false,
-  },
-  {
-    id: 2,
-    name: 'Package #2',
-    price: 169,
-    image: '/pkg2.jpeg',
-    includes: 'Magic Bear + umbrella/bubbles + personalized bobo balloon + large bouquet',
-    hasSinger: false,
-  },
-  {
-    id: 3,
-    name: 'Package #3',
-    price: 225,
-    image: '/PUT_IMAGE_NAME_HERE.jpeg',
-    includes: 'Magic Bear + umbrella/bubbles + personalized balloon + big bouquet + solo singer',
-    hasSinger: true,
-  },
-]
+import { api } from '../api'
 
 const BASKET_ITEMS = [
   '🧸 Stuffed Animal',
@@ -45,6 +19,8 @@ const BASKET_ITEMS = [
 
 function BearBooking() {
   const navigate = useNavigate()
+  const [bearPackages, setBearPackages] = useState([])
+  const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState(null)
   const [quantity, setQuantity] = useState(1)
   const [recipient, setRecipient] = useState('')
@@ -61,6 +37,21 @@ function BearBooking() {
   const [basketDescription, setBasketDescription] = useState('')
 
   const today = new Date().toISOString().slice(0, 10)
+
+  // Load bear packages from backend
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const { products } = await api.getProducts()
+        setBearPackages(products.filter(p => p.category === 'bear'))
+      } catch (err) {
+        console.error('Failed to load bear packages:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [])
 
   const toggleBasketItem = (item) => {
     setBasketItems(prev => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item])
@@ -85,15 +76,18 @@ function BearBooking() {
       setError('Please fill in all required fields.')
       return
     }
-    if (selected.hasSinger && !song) {
+    // Package #3 is the one with the singer
+    const hasSinger = selected.name === 'Package #3'
+    if (hasSinger && !song) {
       setError('Please enter a song request for the solo singer.')
       return
     }
 
     addToCart({
       type: 'bear',
+      productId: selected.id,
       product: selected.name,
-      price: selected.price,
+      price: Number(selected.price),
       image: selected.image,
       includes: selected.includes,
       quantity,
@@ -101,7 +95,7 @@ function BearBooking() {
       date,
       time,
       address,
-      song: selected.hasSinger ? song : null,
+      song: hasSinger ? song : null,
       basketItems,
       basketDescription,
       deliveryType: 'delivery',
@@ -110,6 +104,17 @@ function BearBooking() {
     setAddedMsg(`✅ ${quantity} × ${selected.name} added to cart!`)
     setSelected(null)
     setTimeout(() => setAddedMsg(''), 3000)
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-pink-50">
+        <Navbar />
+        <div className="flex items-center justify-center py-20">
+          <p className="text-pink-600 text-lg animate-pulse">🐻 Loading bear packages...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -145,31 +150,34 @@ function BearBooking() {
         <p className="text-gray-500 text-center mb-8">Tap a package to book</p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {bearPackages.map(pkg => (
-            <div
-              key={pkg.id}
-              onClick={() => openPackage(pkg)}
-              className={`bg-white rounded-2xl shadow border border-pink-100 overflow-hidden hover:shadow-xl transition cursor-pointer hover:-translate-y-1 ${pkg.id === 3 ? 'ring-2 ring-pink-400' : ''}`}
-            >
-              <div className="bg-pink-100 aspect-square overflow-hidden">
-                <img src={pkg.image} alt={pkg.name} className="w-full h-full object-cover" />
-              </div>
+          {bearPackages.map(pkg => {
+            const isMostPopular = pkg.name === 'Package #3'
+            return (
+              <div
+                key={pkg.id}
+                onClick={() => openPackage(pkg)}
+                className={`bg-white rounded-2xl shadow border border-pink-100 overflow-hidden hover:shadow-xl transition cursor-pointer hover:-translate-y-1 ${isMostPopular ? 'ring-2 ring-pink-400' : ''}`}
+              >
+                <div className="bg-pink-100 aspect-square overflow-hidden">
+                  <img src={pkg.image} alt={pkg.name} className="w-full h-full object-cover" />
+                </div>
 
-              <div className="p-5">
-                {pkg.id === 3 && (
-                  <span className="inline-block text-xs bg-pink-600 text-white px-3 py-1 rounded-full font-semibold mb-2">
-                    ⭐ Most Popular
-                  </span>
-                )}
-                <h3 className="text-xl font-bold text-pink-800">🐻 {pkg.name}</h3>
-                <p className="text-2xl font-bold text-pink-600 mt-1 mb-3">BZD ${pkg.price}</p>
-                <p className="text-sm text-gray-600 leading-relaxed">{pkg.includes}</p>
-                <button className="w-full mt-4 bg-pink-600 hover:bg-pink-700 text-white font-semibold py-2 rounded-full transition">
-                  Book This Package →
-                </button>
+                <div className="p-5">
+                  {isMostPopular && (
+                    <span className="inline-block text-xs bg-pink-600 text-white px-3 py-1 rounded-full font-semibold mb-2">
+                      ⭐ Most Popular
+                    </span>
+                  )}
+                  <h3 className="text-xl font-bold text-pink-800">🐻 {pkg.name}</h3>
+                  <p className="text-2xl font-bold text-pink-600 mt-1 mb-3">BZD ${pkg.price}</p>
+                  <p className="text-sm text-gray-600 leading-relaxed">{pkg.includes}</p>
+                  <button className="w-full mt-4 bg-pink-600 hover:bg-pink-700 text-white font-semibold py-2 rounded-full transition">
+                    Book This Package →
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
 
@@ -269,7 +277,7 @@ function BearBooking() {
               </div>
 
               {/* Song Request — only for Package #3 */}
-              {selected.hasSinger && (
+              {selected.name === 'Package #3' && (
                 <div className="mb-4 bg-pink-50 border border-pink-200 rounded-lg p-4">
                   <label className="block text-sm font-semibold text-pink-700 mb-1">
                     🎤 Song Request for the Solo Singer

@@ -19,6 +19,11 @@ app.get('/api/test', (req, res) => {
   res.json({ message: '🌸 Magic Pettals backend is alive!' })
 })
 
+// Route groups
+app.use('/api/auth', require('./routes/auth'))
+app.use('/api/products', require('./routes/products'))
+app.use('/api/orders', require('./routes/orders'))
+
 // Start listening
 app.listen(PORT, () => {
   console.log(`🌸 Backend running on http://localhost:${PORT}`)

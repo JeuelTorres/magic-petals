@@ -1,30 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import { addToCart } from '../cart'
-
-const bouquets = [
-  { id: 1,  roses: 5,   price: 28,  image: "/5.jpeg", description: 'A sweet and intimate bouquet — perfect for a simple "thinking of you" moment.' },
-  { id: 2,  roses: 7,   price: 35,  image: "/7.jpeg", description: 'A classic arrangement that says just enough without being too much.' },
-  { id: 3,  roses: 10,  price: 60,  image: "/10.jpeg", description: 'Full and beautiful — great for birthdays, anniversaries, or just because.' },
-  { id: 4,  roses: 12,  price: 75,  image: "/12.jpeg", description: 'A dozen roses — timeless and romantic. The classic love gesture.' },
-  { id: 5,  roses: 15,  price: 84,  image: "/15.jpeg", description: 'A generous bouquet that makes a real statement when they open the door.' },
-  { id: 6,  roses: 20,  price: 113, image: "/20.jpeg", description: 'Bold and lush — this one turns heads and melts hearts.' },
-  { id: 7,  roses: 25,  price: 141, image: "/25.jpeg", description: 'Twenty-five reasons to smile. Stunning for any special occasion.' },
-  { id: 8,  roses: 30,  price: 169, image: "/30.jpeg", description: 'A showstopper. Thirty eternal roses that will never wilt or fade.' },
-  { id: 9,  roses: 35,  price: 197, image: "/35.jpeg", description: 'For when you really want to go all out. Absolutely breathtaking.' },
-  { id: 10, roses: 40,  price: 225, image: "/40.jpeg", description: 'Forty roses — a grand romantic gesture they will never forget.' },
-  { id: 11, roses: 45,  price: 253, image: "/45.jpeg", description: 'An extraordinary display of love and appreciation.' },
-  { id: 12, roses: 50,  price: 309, image: "/50.jpeg", description: 'Fifty eternal roses. The ultimate bouquet for the most special person.' },
-  { id: 13, roses: 100, price: 563, image: "/100.jpeg", description: 'One hundred roses. When words are simply not enough.' },
-]
-
-const naturalFlowers = [
-  { id: 'nf1', name: 'Single Flower', price: 10,  image: '/1nf.jpeg', description: 'A single beautiful natural flower — simple, elegant, and heartfelt.' },
-  { id: 'nf2', name: '6 Flowers',     price: 60,  image: '/6NF.jpeg', description: 'A lovely half-dozen natural flower bouquet, fresh and fragrant.' },
-  { id: 'nf3', name: '12 Flowers',    price: 120, image: '/12NF.jpeg', description: 'A full dozen natural flowers — classic, stunning, and unforgettable.' },
-  { id: 'nf4', name: 'Mix Bouquet',   price: 75,  image: '/MIX.jpeg', description: 'A beautiful mix of natural flowers, colorful and full of life.' },
-]
+import { api } from '../api'
 
 const EXTRAS = [
   { id: 'message',    label: '💌 Message Card',    desc: 'Add a personal message card',   question: 'What would you like written on the message card?', placeholder: 'e.g. "Happy Birthday! Love you so much 💕"', hasImage: false },
@@ -35,8 +13,13 @@ const EXTRAS = [
   { id: 'box',        label: '📦 Gift Box',        desc: 'Present in a luxury gift box',  question: 'Any preference for the gift box?',               placeholder: 'e.g. Color, style, special requests',          hasImage: false },
 ]
 
+const ROSE_COLORS = ['🔴 Red', '💖 Pink', '⚪ White', '💛 Yellow', '💜 Purple', '🌈 Mixed']
+
 function ProductCatalog() {
   const navigate = useNavigate()
+  const [bouquets, setBouquets] = useState([])
+  const [naturalFlowers, setNaturalFlowers] = useState([])
+  const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState(null)
   const [showCustom, setShowCustom] = useState(false)
   const [quantity, setQuantity] = useState(1)
@@ -51,10 +34,27 @@ function ProductCatalog() {
   const [deliveryType, setDeliveryType] = useState('delivery')
   const [flowerTypes, setFlowerTypes] = useState([])
   const [customFlower, setCustomFlower] = useState('')
+  const [roseColor, setRoseColor] = useState('')
   const [error, setError] = useState('')
   const [addedMsg, setAddedMsg] = useState('')
 
   const today = new Date().toISOString().slice(0, 10)
+
+  // Load products from backend when the page opens
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const { products } = await api.getProducts()
+        setBouquets(products.filter(p => p.category === 'eternal'))
+        setNaturalFlowers(products.filter(p => p.category === 'natural'))
+      } catch (err) {
+        console.error('Failed to load products:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [])
 
   const toggleExtra = (id) => {
     setExtras(prev => {
@@ -90,12 +90,13 @@ function ProductCatalog() {
     setDeliveryType('delivery')
     setFlowerTypes([])
     setCustomFlower('')
+    setRoseColor('')
     setError('')
   }
 
   const handleAddToCart = () => {
     if (!date || !time) {
-      setError('Please pick a delivery date and time.')
+      setError('Please pick a date and time.')
       return
     }
     if (deliveryType === 'delivery' && !address) {
@@ -103,14 +104,15 @@ function ProductCatalog() {
       return
     }
 
-    const productName = selected.roses
-      ? selected.roses + ' Roses (Eternal)'
+    const productName = selected.category === 'eternal'
+      ? selected.roses_count + ' Roses (Eternal)'
       : selected.name + ' (Natural)'
 
     addToCart({
       type: 'bouquet',
+      productId: selected.id,
       product: productName,
-      price: selected.price,
+      price: Number(selected.price),
       image: selected.image,
       quantity,
       deliveryType,
@@ -122,12 +124,24 @@ function ProductCatalog() {
       extraDetails,
       flowerTypes,
       customFlower,
+      roseColor,
       hasInspo: !!inspoFile,
     })
 
     setAddedMsg(`✅ ${quantity} × ${productName} added to cart!`)
     setSelected(null)
     setTimeout(() => setAddedMsg(''), 3000)
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-pink-50">
+        <Navbar />
+        <div className="flex items-center justify-center py-20">
+          <p className="text-pink-600 text-lg animate-pulse">🌸 Loading flowers...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -164,10 +178,10 @@ function ProductCatalog() {
             className="bg-white rounded-xl shadow border border-pink-100 overflow-hidden hover:shadow-lg transition cursor-pointer hover:-translate-y-1"
           >
             <div className="bg-pink-50 h-52 overflow-hidden">
-              <img src={b.image} alt={`${b.roses} Roses`} className="w-full h-full object-cover object-center" />
+              <img src={b.image} alt={`${b.roses_count} Roses`} className="w-full h-full object-cover object-center" />
             </div>
             <div className="p-4">
-              <h3 className="font-bold text-pink-800">{b.roses} Roses</h3>
+              <h3 className="font-bold text-pink-800">{b.roses_count} Roses</h3>
               <p className="text-xs text-gray-400 mb-2">Tap to see details</p>
               <p className="text-lg font-bold text-pink-600">BZD ${b.price}</p>
             </div>
@@ -211,13 +225,13 @@ function ProductCatalog() {
           <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto">
 
             {/* Modal Header */}
-            <div className={`text-white p-6 rounded-t-2xl ${selected.roses ? 'bg-gradient-to-r from-pink-700 to-pink-500' : 'bg-gradient-to-r from-pink-800 to-pink-400'}`}>
+            <div className={`text-white p-6 rounded-t-2xl ${selected.category === 'eternal' ? 'bg-gradient-to-r from-pink-700 to-pink-500' : 'bg-gradient-to-r from-pink-800 to-pink-400'}`}>
               <div className="flex justify-between items-start">
                 <div className="w-full pr-4">
                   <div className="overflow-hidden rounded-2xl mb-4">
-                    <img src={selected.image} alt={selected.roses ? `${selected.roses} Eternal Roses` : selected.name} className="w-full h-56 object-cover object-center" />
+                    <img src={selected.image} alt={selected.category === 'eternal' ? `${selected.roses_count} Eternal Roses` : selected.name} className="w-full h-56 object-cover object-center" />
                   </div>
-                  <h3 className="text-2xl font-bold">{selected.roses ? `${selected.roses} Eternal Roses` : selected.name}</h3>
+                  <h3 className="text-2xl font-bold">{selected.category === 'eternal' ? `${selected.roses_count} Eternal Roses` : selected.name}</h3>
                   <p className="text-pink-200 text-sm mt-1">{selected.description}</p>
                 </div>
                 <button onClick={() => setSelected(null)} className="text-white text-2xl hover:opacity-70">✕</button>
@@ -318,8 +332,28 @@ function ProductCatalog() {
                 </div>
               </div>
 
+              {/* Rose Color — only for Eternal */}
+              {selected.category === 'eternal' && (
+                <div className="mb-4 bg-pink-50 border border-pink-200 rounded-lg p-3">
+                  <p className="text-sm font-medium text-pink-700 mb-2">🌹 Choose Rose Color</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {ROSE_COLORS.map(color => (
+                      <div
+                        key={color}
+                        onClick={() => setRoseColor(color)}
+                        className={`border-2 rounded-lg p-2 cursor-pointer text-xs text-center transition ${
+                          roseColor === color ? 'border-pink-500 bg-pink-100 text-pink-700 font-semibold' : 'border-white text-gray-600 hover:border-pink-300 bg-white'
+                        }`}
+                      >
+                        {color}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Flower Type — only for Natural */}
-              {!selected.roses && (
+              {selected.category === 'natural' && (
                 <div className="mb-4 bg-pink-50 border border-pink-200 rounded-lg p-3">
                   <p className="text-sm font-medium text-pink-700 mb-2">🌺 Which flowers would you like?</p>
                   <div className="grid grid-cols-3 gap-2 mb-3">
