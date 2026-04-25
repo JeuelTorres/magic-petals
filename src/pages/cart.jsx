@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import { getCart, removeFromCart, updateQuantity, clearCart, getCartTotal } from '../cart'
 import { api } from '../api'
+import { sendOrderEmails } from '../email'
 
 function Cart() {
   const navigate = useNavigate()
@@ -40,6 +41,9 @@ function Cart() {
 
     try {
       const { orders: placedOrders } = await api.createOrder(session.id, items)
+
+      // Send receipt emails (runs in background — doesn't block)
+      sendOrderEmails(placedOrders, session, items)
 
       // Store the placed orders for the confirmation page
       localStorage.setItem('mp_justPlacedOrders', JSON.stringify(placedOrders))
