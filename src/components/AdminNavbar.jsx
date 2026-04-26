@@ -15,6 +15,7 @@ function AdminNavbar() {
     { label: ' Reminders', path: '/admin/reminders' },
     { label: ' Inventory', path: '/admin/inventory' },
     { label: ' Reports',   path: '/admin/reports' },
+    { label: ' Support',   path: '/admin/support' },
   ]
 
   return (
