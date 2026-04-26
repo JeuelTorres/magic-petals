@@ -23,9 +23,9 @@ export async function sendOrderEmail(order, customer) {
     }
 
     await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY)
-    console.log('✅ Email sent for order', order.ref)
+    console.log('Email sent for order', order.ref)
   } catch (err) {
-    console.error('❌ Failed to send email:', err)
+    console.error('Failed to send email:', err)
     // Don't throw — we don't want email failure to break the checkout
   }
 }
@@ -45,5 +45,31 @@ export async function sendOrderEmails(placedOrders, customer, cartItems) {
       ...cartItem,
       ...order,
     }, customer)
+  }
+}
+
+// ════════════════════════════════════════════════
+// Send admin reminder email about an urgent delivery
+// ════════════════════════════════════════════════
+const REMINDER_TEMPLATE_ID = 'template_eln5rtp'
+const ADMIN_EMAIL = 'zel.06torres@gmail.com'
+
+export async function sendAdminReminder(order) {
+  try {
+    const templateParams = {
+      admin_email: ADMIN_EMAIL,
+      ref: order.ref,
+      product: order.product,
+      customer: order.customer || 'Unknown',
+      phone: order.customerPhone || 'No phone on file',
+      delivery_date: order.date ? new Date(order.date).toLocaleDateString() : 'TBD',
+      delivery_time: order.time || 'TBD',
+      address: order.deliveryType === 'pickup' ? 'Pickup at shop' : (order.address || 'TBD'),
+    }
+
+    await emailjs.send(SERVICE_ID, REMINDER_TEMPLATE_ID, templateParams, PUBLIC_KEY)
+    console.log('Reminder email sent for order', order.ref)
+  } catch (err) {
+    console.error('Failed to send reminder email:', err)
   }
 }
