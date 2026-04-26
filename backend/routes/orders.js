@@ -67,12 +67,21 @@ router.post('/', async (req, res) => {
 
         // 4. Save customizations (rose color, flower types, extras, basket items)
 
-        // Rose color (for eternal)
-        if (item.roseColor) {
-          await conn.query(
-            'INSERT INTO order_item_customizations (order_item_id, custom_text) VALUES (?, ?)',
-            [orderItemId, `Rose Color: ${item.roseColor}`]
-          )
+        // Rose colors (for eternal) — supports multiple colors
+        if (item.roseColors && item.roseColors.length > 0) {
+          for (const color of item.roseColors) {
+            await conn.query(
+              'INSERT INTO order_item_customizations (order_item_id, custom_text) VALUES (?, ?)',
+              [orderItemId, 'Rose Color: ' + color]
+            )
+          }
+          // If they specified a custom mix
+          if (item.customMix) {
+            await conn.query(
+              'INSERT INTO order_item_customizations (order_item_id, custom_text) VALUES (?, ?)',
+              [orderItemId, 'Custom Mix: ' + item.customMix]
+            )
+          }
         }
 
         // Flower types (for natural)

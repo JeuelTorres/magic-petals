@@ -128,8 +128,8 @@ function Cart() {
                       ) : item.address ? (
                         <p>📍 {item.address}</p>
                       ) : null}
-                      {item.roseColor && (
-                        <p>🌹 Color: {item.roseColor}</p>
+                      {item.roseColors?.length > 0 && (
+                        <p>🌹 Colors: {item.roseColors.join(', ')}{item.customMix ? ' (' + item.customMix + ')' : ''}</p>
                       )}
                       {item.flowerTypes?.length > 0 && (
                         <p>🌺 {item.flowerTypes.join(', ')}</p>

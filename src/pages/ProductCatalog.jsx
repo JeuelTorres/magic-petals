@@ -35,7 +35,8 @@ function ProductCatalog() {
   const [deliveryType, setDeliveryType] = useState('delivery')
   const [flowerTypes, setFlowerTypes] = useState([])
   const [customFlower, setCustomFlower] = useState('')
-  const [roseColor, setRoseColor] = useState('')
+  const [roseColors, setRoseColors] = useState([])
+  const [customMix, setCustomMix] = useState('')
   const [error, setError] = useState('')
   const [addedMsg, setAddedMsg] = useState('')
 
@@ -75,6 +76,7 @@ function ProductCatalog() {
   const updateExtraDetail = (id, value) => setExtraDetails(prev => ({ ...prev, [id]: value }))
   const updateExtraImage  = (id, file)  => setExtraImages(prev => ({ ...prev, [id]: file }))
   const toggleFlowerType = (type) => setFlowerTypes(prev => prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type])
+  const toggleRoseColor = (color) => setRoseColors(prev => prev.includes(color) ? prev.filter(c => c !== color) : [...prev, color])
 
   const openCard = (b) => {
     setSelected(b)
@@ -92,7 +94,8 @@ function ProductCatalog() {
     setDeliveryType('delivery')
     setFlowerTypes([])
     setCustomFlower('')
-    setRoseColor('')
+    setRoseColors([])
+    setCustomMix('')
     setError('')
   }
 
@@ -145,7 +148,8 @@ const handleAddToCart = async () => {
         extraImageFilenames,
         flowerTypes,
         customFlower,
-        roseColor,
+        roseColors,
+        customMix,
         hasInspo: !!inspoFile,
         inspoFilename,
       })
@@ -372,23 +376,36 @@ const handleAddToCart = async () => {
                 </div>
               </div>
 
-              {/* Rose Color — only for Eternal */}
+            {/* Rose Color — only for Eternal */}
               {selected.category === 'eternal' && (
                 <div className="mb-4 bg-pink-50 border border-pink-200 rounded-lg p-3">
-                  <p className="text-sm font-medium text-pink-700 mb-2">🌹 Choose Rose Color</p>
-                  <div className="grid grid-cols-3 gap-2">
+                  <p className="text-sm font-medium text-pink-700 mb-2">🌹 Choose Rose Color(s) — pick one or more</p>
+                  <div className="grid grid-cols-3 gap-2 mb-3">
                     {ROSE_COLORS.map(color => (
                       <div
                         key={color}
-                        onClick={() => setRoseColor(color)}
+                        onClick={() => toggleRoseColor(color)}
                         className={`border-2 rounded-lg p-2 cursor-pointer text-xs text-center transition ${
-                          roseColor === color ? 'border-pink-500 bg-pink-100 text-pink-700 font-semibold' : 'border-white text-gray-600 hover:border-pink-300 bg-white'
+                          roseColors.includes(color) ? 'border-pink-500 bg-pink-100 text-pink-700 font-semibold' : 'border-white text-gray-600 hover:border-pink-300 bg-white'
                         }`}
                       >
                         {color}
                       </div>
                     ))}
                   </div>
+
+                  {/* Custom mix input — shows when Mixed is selected */}
+                  {roseColors.includes('🌈 Mixed') && (
+                    <div>
+                      <p className="text-xs text-pink-700 font-semibold mb-1">🎨 Specify your mix (optional):</p>
+                      <input
+                        value={customMix}
+                        onChange={e => setCustomMix(e.target.value)}
+                        placeholder="e.g. 6 red and 6 pink, or rainbow style"
+                        className="w-full border border-pink-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-pink-400 bg-white"
+                      />
+                    </div>
+                  )}
                 </div>
               )}
 
