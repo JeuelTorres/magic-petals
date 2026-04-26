@@ -142,7 +142,7 @@ const [streetVillage, setStreetVillage] = useState('')
       {/* Info banner */}
       <div className="max-w-6xl mx-auto px-6 mt-6">
         <div className="bg-pink-100 border border-pink-300 rounded-lg p-3 text-pink-800 text-sm">
-          🎁 Want to add items for kids? Tap any package and hit <strong>Customize My Order</strong> to build a personalized gift basket on top of your package!
+          Want to add items for kids? Tap any package and hit <strong>Customize My Order</strong> to build a personalized gift basket on top of your package!
         </div>
       </div>
 
@@ -198,7 +198,7 @@ const [streetVillage, setStreetVillage] = useState('')
                   <div className="overflow-hidden rounded-2xl mb-4">
                     <img src={selected.image} alt={selected.name} className="w-full h-56 object-cover object-center" />
                   </div>
-                  <h3 className="text-2xl font-bold">🐻 {selected.name}</h3>
+                  <h3 className="text-2xl font-bold">{selected.name}</h3>
                   <p className="text-pink-200 text-sm mt-1">{selected.includes}</p>
                 </div>
                 <button onClick={() => setSelected(null)} className="text-white text-2xl hover:opacity-70">✕</button>
@@ -210,7 +210,7 @@ const [streetVillage, setStreetVillage] = useState('')
 
               {error && (
                 <div className="bg-red-50 text-red-600 border border-red-200 rounded-lg p-3 mb-4 text-sm">
-                  ⚠️ {error}
+                  {error}
                 </div>
               )}
 
@@ -314,13 +314,13 @@ const [streetVillage, setStreetVillage] = useState('')
                 onClick={() => setShowCustom(!showCustom)}
                 className="w-full border-2 border-pink-400 text-pink-600 font-semibold py-2 rounded-full mb-4 hover:bg-pink-50 transition"
               >
-                {showCustom ? '✕ Hide Customization' : '✨ Customize My Order'}
+                {showCustom ? '✕ Hide Customization' : 'Customize My Order'}
               </button>
 
               {/* Customization Section */}
               {showCustom && (
                 <div className="bg-pink-50 rounded-xl p-4 mb-4 border border-pink-200">
-                  <h4 className="font-bold text-pink-700 mb-1">🎁 Build Your Gift Basket</h4>
+                  <h4 className="font-bold text-pink-700 mb-1">Build Your Gift Basket</h4>
                   <p className="text-xs text-gray-500 mb-3">
                     Add kid-friendly items on top of your bear package. Pricing varies — our team will confirm the final total.
                   </p>
@@ -343,7 +343,7 @@ const [streetVillage, setStreetVillage] = useState('')
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">📝 Any other details?</label>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Any other details?</label>
                     <textarea
                       value={basketDescription}
                       onChange={e => setBasketDescription(e.target.value)}

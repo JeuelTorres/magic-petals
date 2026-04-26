@@ -13,7 +13,7 @@ const EXTRAS = [
   { id: 'box',        label: '📦 Gift Box',        desc: 'Present in a luxury gift box',  question: 'Any preference for the gift box?',               placeholder: 'e.g. Color, style, special requests',          hasImage: false },
 ]
 
-const ROSE_COLORS = ['🔴 Red', '💖 Pink', '⚪ White', '💛 Yellow', '💜 Purple', '🌈 Mixed']
+const ROSE_COLORS = ['Red', 'Pink', 'White', 'Yellow', 'Purple', 'Mixed']
 
 function ProductCatalog() {
   const navigate = useNavigate()
@@ -154,7 +154,7 @@ const handleAddToCart = async () => {
         inspoFilename,
       })
 
-      setAddedMsg('✅ ' + quantity + ' × ' + productName + ' added to cart!')
+      setAddedMsg(' ' + quantity + ' × ' + productName + ' added to cart!')
       setSelected(null)
       setTimeout(() => setAddedMsg(''), 3000)
     } catch (err) {
@@ -167,7 +167,7 @@ const handleAddToCart = async () => {
       <div className="min-h-screen bg-pink-50">
         <Navbar />
         <div className="flex items-center justify-center py-20">
-          <p className="text-pink-600 text-lg animate-pulse">🌸 Loading flowers...</p>
+          <p className="text-pink-600 text-lg animate-pulse"> Loading flowers...</p>
         </div>
       </div>
     )
@@ -187,7 +187,7 @@ const handleAddToCart = async () => {
 
       {/* Hero */}
       <div className="bg-gradient-to-r from-pink-700 to-pink-500 text-white px-6 py-10 text-center">
-        <h2 className="text-3xl font-bold mb-2">🌸 Eternal Rose Bouquets</h2>
+        <h2 className="text-3xl font-bold mb-2">  Eternal Rose Bouquets</h2>
         <p className="text-pink-100">Preserved forever — never fade, never wilt. Real roses, real love.</p>
       </div>
 
@@ -221,7 +221,7 @@ const handleAddToCart = async () => {
       {/* Natural Flowers Section */}
       <div className="max-w-6xl mx-auto px-6 mt-2 mb-10">
         <div className="bg-gradient-to-r from-pink-800 to-pink-400 text-white px-6 py-8 text-center rounded-2xl mb-6">
-          <h2 className="text-3xl font-bold mb-2">🌺 Natural Flower Bouquets</h2>
+          <h2 className="text-3xl font-bold mb-2"> Natural Flower Bouquets</h2>
           <p className="text-pink-100">Fresh, fragrant, and straight from nature — made with love.</p>
         </div>
 
@@ -272,7 +272,7 @@ const handleAddToCart = async () => {
 
               {error && (
                 <div className="bg-red-50 text-red-600 border border-red-200 rounded-lg p-3 mb-4 text-sm">
-                  ⚠️ {error}
+                  {error}
                 </div>
               )}
 
@@ -379,7 +379,7 @@ const handleAddToCart = async () => {
             {/* Rose Color — only for Eternal */}
               {selected.category === 'eternal' && (
                 <div className="mb-4 bg-pink-50 border border-pink-200 rounded-lg p-3">
-                  <p className="text-sm font-medium text-pink-700 mb-2">🌹 Choose Rose Color(s) — pick one or more</p>
+                  <p className="text-sm font-medium text-pink-700 mb-2"> Choose Rose Color(s) — pick one or more</p>
                   <div className="grid grid-cols-3 gap-2 mb-3">
                     {ROSE_COLORS.map(color => (
                       <div
@@ -395,9 +395,9 @@ const handleAddToCart = async () => {
                   </div>
 
                   {/* Custom mix input — shows when Mixed is selected */}
-                  {roseColors.includes('🌈 Mixed') && (
+                  {roseColors.includes('Mixed') && (
                     <div>
-                      <p className="text-xs text-pink-700 font-semibold mb-1">🎨 Specify your mix (optional):</p>
+                      <p className="text-xs text-pink-700 font-semibold mb-1">Specify your mix (optional):</p>
                       <input
                         value={customMix}
                         onChange={e => setCustomMix(e.target.value)}
@@ -412,9 +412,9 @@ const handleAddToCart = async () => {
               {/* Flower Type — only for Natural */}
               {selected.category === 'natural' && (
                 <div className="mb-4 bg-pink-50 border border-pink-200 rounded-lg p-3">
-                  <p className="text-sm font-medium text-pink-700 mb-2">🌺 Which flowers would you like?</p>
+                  <p className="text-sm font-medium text-pink-700 mb-2">Which flowers would you like?</p>
                   <div className="grid grid-cols-3 gap-2 mb-3">
-                    {['🌹 Roses', '🌷 Tulips', '🌻 Sunflowers', '🌼 Daisies', '🌸 Lilies', '💐 Mixed'].map(type => (
+                    {['Roses', 'Tulips', 'Sunflowers', 'Daisies', 'Lilies', 'Mixed'].map(type => (
                       <div
                         key={type}
                         onClick={() => toggleFlowerType(type)}
@@ -441,13 +441,13 @@ const handleAddToCart = async () => {
                 onClick={() => setShowCustom(!showCustom)}
                 className="w-full border-2 border-pink-400 text-pink-600 font-semibold py-2 rounded-full mb-4 hover:bg-pink-50 transition"
               >
-                {showCustom ? '✕ Hide Customization' : '✨ Customize My Order'}
+                {showCustom ? '✕ Hide Customization' : 'Customize My Order'}
               </button>
 
               {/* Customization Section */}
               {showCustom && (
                 <div className="bg-pink-50 rounded-xl p-4 mb-4 border border-pink-200">
-                  <h4 className="font-bold text-pink-700 mb-3">✨ Make It Special</h4>
+                  <h4 className="font-bold text-pink-700 mb-3">Make It Special</h4>
 
                   <p className="text-sm font-medium text-gray-600 mb-2">Add extras:</p>
                   <div className="grid grid-cols-2 gap-2 mb-2">
@@ -482,7 +482,7 @@ const handleAddToCart = async () => {
                                   className="w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-full file:border-0 file:bg-pink-100 file:text-pink-700"
                                 />
                                 {extraImages[ex.id] && (
-                                  <p className="text-xs text-green-600 mt-1">✅ {extraImages[ex.id].name}</p>
+                                  <p className="text-xs text-green-600 mt-1">{extraImages[ex.id].name}</p>
                                 )}
                               </div>
                             )}
@@ -502,11 +502,11 @@ const handleAddToCart = async () => {
                       onChange={e => setInspoFile(e.target.files[0])}
                       className="w-full text-sm text-gray-500 file:mr-3 file:py-1 file:px-3 file:rounded-full file:border-0 file:bg-pink-100 file:text-pink-700 file:text-xs"
                     />
-                    {inspoFile && <p className="text-xs text-green-600 mt-1">✅ Photo attached: {inspoFile.name}</p>}
+                    {inspoFile && <p className="text-xs text-green-600 mt-1">Photo attached: {inspoFile.name}</p>}
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-1">📝 Any other special requests?</label>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Any other special requests?</label>
                     <textarea
                       value={notes}
                       onChange={e => setNotes(e.target.value)}
@@ -522,7 +522,7 @@ const handleAddToCart = async () => {
                 onClick={handleAddToCart}
                 className="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 rounded-full transition text-lg"
               >
-                🛒 Add to Cart — BZD ${selected.price * quantity}
+                Add to Cart — BZD ${selected.price * quantity}
               </button>
 
               <p className="text-center text-xs text-gray-400 mt-2">

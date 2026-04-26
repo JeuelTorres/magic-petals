@@ -32,7 +32,7 @@ function Navbar() {
         onClick={() => navigate('/')}
         className="text-2xl font-bold text-gray-800 italic cursor-pointer"
       >
-        🌸 Magic Pettals
+        Magic Petals
       </h1>
 
       <div className="flex items-center gap-6 text-sm font-medium text-gray-600">
@@ -40,10 +40,6 @@ function Navbar() {
         <button onClick={() => navigate('/catalog')} className="hover:text-pink-600 transition">Shop</button>
         <button onClick={() => navigate('/book-bear')} className="hover:text-pink-600 transition">Bear Delivery</button>
         <button onClick={() => navigate('/faq')} className="hover:text-pink-600 transition">FAQ</button>
-
-        {isAdmin && (
-          <button onClick={() => navigate('/admin')} className="hover:text-pink-600 transition">Admin</button>
-        )}
 
         {/* Cart button */}
         <button

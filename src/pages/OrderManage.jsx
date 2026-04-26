@@ -105,7 +105,7 @@ function OrderManage() {
     )
   }
 
-  const typeIcon = (t) => t === 'bear' ? '🐻' : t === 'basket' ? '🎁' : '🌹'
+  const typeIcon = (t) => t === 'bear' ? '' : t === 'basket' ? '' : ' '
 
   if (loading) {
     return (
@@ -159,7 +159,7 @@ function OrderManage() {
 
         {filtered.length === 0 ? (
           <div className="bg-white rounded-xl border border-pink-100 p-8 text-center">
-            <p className="text-5xl mb-3">📋</p>
+            <p className="text-5xl mb-3"></p>
             <p className="text-gray-500">
               {orders.length === 0 ? 'No orders yet.' : 'No orders match your search.'}
             </p>

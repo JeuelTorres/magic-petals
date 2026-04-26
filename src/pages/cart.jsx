@@ -77,13 +77,13 @@ function Cart() {
                 onClick={() => navigate('/catalog')}
                 className="bg-pink-600 hover:bg-pink-700 text-white font-semibold px-6 py-3 rounded-full transition"
               >
-                Shop Flowers 🌹
+                Shop Flowers
               </button>
               <button
                 onClick={() => navigate('/book-bear')}
                 className="border-2 border-pink-600 text-pink-600 hover:bg-pink-600 hover:text-white font-semibold px-6 py-3 rounded-full transition"
               >
-                Bear Delivery 🐻
+                Bear Delivery
               </button>
             </div>
           </div>
