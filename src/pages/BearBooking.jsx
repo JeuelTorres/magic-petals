@@ -26,7 +26,8 @@ function BearBooking() {
   const [recipient, setRecipient] = useState('')
   const [date, setDate] = useState('')
   const [time, setTime] = useState('')
-  const [address, setAddress] = useState('')
+const [streetVillage, setStreetVillage] = useState('')
+  const [district, setDistrict] = useState('')  
   const [song, setSong] = useState('')
   const [error, setError] = useState('')
   const [addedMsg, setAddedMsg] = useState('')
@@ -63,7 +64,8 @@ function BearBooking() {
     setRecipient('')
     setDate('')
     setTime('')
-    setAddress('')
+    setStreetVillage('')
+    setDistrict('')
     setSong('')
     setError('')
     setShowCustom(false)
@@ -72,7 +74,7 @@ function BearBooking() {
   }
 
   const handleAddToCart = () => {
-    if (!recipient || !date || !time || !address) {
+    if (!recipient || !date || !time || !streetVillage || !district) {
       setError('Please fill in all required fields.')
       return
     }
@@ -94,7 +96,7 @@ function BearBooking() {
       recipient,
       date,
       time,
-      address,
+      address: deliveryType === 'delivery' ? streetVillage + ', ' + district : '',
       song: hasSinger ? song : null,
       basketItems,
       basketDescription,
@@ -267,13 +269,28 @@ function BearBooking() {
 
               {/* Address */}
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-600 mb-1">Delivery Address / Location</label>
-                <input
-                  value={address}
-                  onChange={e => setAddress(e.target.value)}
-                  placeholder="Full delivery address"
-                  className="w-full border border-pink-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-pink-400"
-                />
+                <label className="block text-sm font-medium text-gray-600 mb-1">Delivery Address</label>
+                <div className="space-y-2">
+                  <input
+                    value={streetVillage}
+                    onChange={e => setStreetVillage(e.target.value)}
+                    placeholder="Street and Village (e.g. 123 Main St, Trial Farm)"
+                    className="w-full border border-pink-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-pink-400"
+                  />
+                  <select
+                    value={district}
+                    onChange={e => setDistrict(e.target.value)}
+                    className="w-full border border-pink-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-pink-400 bg-white"
+                  >
+                    <option value="">— Select District —</option>
+                    <option value="Belize">Belize</option>
+                    <option value="Cayo">Cayo</option>
+                    <option value="Corozal">Corozal</option>
+                    <option value="Orange Walk">Orange Walk</option>
+                    <option value="Stann Creek">Stann Creek</option>
+                    <option value="Toledo">Toledo</option>
+                  </select>
+                </div>
               </div>
 
               {/* Song Request — only for Package #3 */}

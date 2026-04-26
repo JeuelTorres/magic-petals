@@ -23,7 +23,8 @@ function ProductCatalog() {
   const [selected, setSelected] = useState(null)
   const [showCustom, setShowCustom] = useState(false)
   const [quantity, setQuantity] = useState(1)
-  const [address, setAddress] = useState('')
+  const [streetVillage, setStreetVillage] = useState('')
+  const [district, setDistrict] = useState('')
   const [date, setDate] = useState('')
   const [time, setTime] = useState('')
   const [notes, setNotes] = useState('')
@@ -79,7 +80,8 @@ function ProductCatalog() {
     setSelected(b)
     setShowCustom(false)
     setQuantity(1)
-    setAddress('')
+    setStreetVillage('')
+    setDistrict('')
     setDate('')
     setTime('')
     setNotes('')
@@ -99,11 +101,10 @@ const handleAddToCart = async () => {
       setError('Please pick a date and time.')
       return
     }
-    if (deliveryType === 'delivery' && !address) {
-      setError('Please enter a delivery address.')
+    if (deliveryType === 'delivery' && (!streetVillage || !district)) {
+      setError('Please enter both street/village and district.')
       return
     }
-
     setError('')
 
     try {
@@ -136,8 +137,7 @@ const handleAddToCart = async () => {
         image: selected.image,
         quantity,
         deliveryType,
-        address,
-        date,
+        address: deliveryType === 'delivery' ? streetVillage + ', ' + district : '',        date,
         time,
         notes,
         extras,
@@ -315,13 +315,28 @@ const handleAddToCart = async () => {
                   </div>
                 </div>
 
-                {deliveryType === 'delivery' && (
-                  <input
-                    value={address}
-                    onChange={e => setAddress(e.target.value)}
-                    placeholder="Street, Village, District"
-                    className="w-full border border-pink-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-pink-400"
-                  />
+                    {deliveryType === 'delivery' && (
+                  <div className="space-y-2">
+                    <input
+                      value={streetVillage}
+                      onChange={e => setStreetVillage(e.target.value)}
+                      placeholder="Street and Village (e.g. 123 Main St, Trial Farm)"
+                      className="w-full border border-pink-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-pink-400"
+                    />
+                    <select
+                      value={district}
+                      onChange={e => setDistrict(e.target.value)}
+                      className="w-full border border-pink-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-pink-400 bg-white"
+                    >
+                      <option value="">— Select District —</option>
+                      <option value="Belize">Belize</option>
+                      <option value="Cayo">Cayo</option>
+                      <option value="Corozal">Corozal</option>
+                      <option value="Orange Walk">Orange Walk</option>
+                      <option value="Stann Creek">Stann Creek</option>
+                      <option value="Toledo">Toledo</option>
+                    </select>
+                  </div>
                 )}
                 {deliveryType === 'pickup' && (
                   <div className="bg-pink-50 border border-pink-200 rounded-lg p-3 text-sm text-pink-700">
