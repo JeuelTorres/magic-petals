@@ -141,7 +141,8 @@ router.get('/', async (req, res) => {
         oi.id AS order_item_id, oi.product_name AS product, oi.quantity,
         dd.delivery_type AS deliveryType, dd.delivery_date AS date, dd.delivery_time AS time,
         dd.address, dd.recipient_name AS recipient, dd.song_request AS song,
-        dd.notes, dd.custom_flower, dd.basket_description, dd.has_inspo_photo AS hasInspo,
+        dd.notes, dd.custom_flower AS customFlower, dd.basket_description AS basketDescription, 
+        dd.has_inspo_photo AS hasInspo,
         p.image,
         c.name AS type
       FROM orders o
@@ -152,6 +153,15 @@ router.get('/', async (req, res) => {
       LEFT JOIN categories c ON p.category_id = c.id
       ORDER BY o.created_at DESC
     `)
+
+    // For each order, also fetch its customizations
+    for (const order of orders) {
+      const [customizations] = await pool.query(
+        'SELECT custom_text, image_path FROM order_item_customizations WHERE order_item_id = ?',
+        [order.order_item_id]
+      )
+      order.customizations = customizations
+    }
 
     // Map category name to 'bear', 'bouquet', or 'basket'
     const mapped = orders.map(o => ({
