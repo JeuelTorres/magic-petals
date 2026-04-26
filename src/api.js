@@ -13,6 +13,21 @@ async function request(path, options = {}) {
   return data
 }
 
+// Special helper for file uploads (uses FormData, not JSON)
+async function uploadFile(file) {
+  const formData = new FormData()
+  formData.append('image', file)
+
+  const res = await fetch(BASE_URL + '/upload', {
+    method: 'POST',
+    body: formData,
+  })
+
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error || 'Upload failed')
+  return data
+}
+
 export const api = {
   // Auth
   register: (user) => request('/auth/register', { method: 'POST', body: JSON.stringify(user) }),
@@ -41,4 +56,7 @@ export const api = {
   sendMessage: (msg) => request('/messages', { method: 'POST', body: JSON.stringify(msg) }),
   markMessageAnswered: (id, answered) => request(`/messages/${id}`, { method: 'PATCH', body: JSON.stringify({ answered }) }),
   deleteMessage: (id) => request(`/messages/${id}`, { method: 'DELETE' }),
+
+  // Upload
+  uploadImage: (file) => uploadFile(file),
 }

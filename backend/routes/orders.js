@@ -85,15 +85,24 @@ router.post('/', async (req, res) => {
           }
         }
 
-        // Extras (message card, balloon, etc.)
+// Extras (message card, balloon, etc.) — including images
         if (item.extras && item.extras.length > 0) {
           for (const extraId of item.extras) {
             const detail = item.extraDetails?.[extraId] || ''
+            const imagePath = item.extraImageFilenames?.[extraId] || null
             await conn.query(
-              'INSERT INTO order_item_customizations (order_item_id, custom_text) VALUES (?, ?)',
-              [orderItemId, `${extraId}: ${detail}`]
+              'INSERT INTO order_item_customizations (order_item_id, custom_text, image_path) VALUES (?, ?, ?)',
+              [orderItemId, extraId + ': ' + detail, imagePath]
             )
           }
+        }
+
+        // Inspiration photo (general one)
+        if (item.inspoFilename) {
+          await conn.query(
+            'INSERT INTO order_item_customizations (order_item_id, custom_text, image_path) VALUES (?, ?, ?)',
+            [orderItemId, 'Inspiration Photo', item.inspoFilename]
+          )
         }
 
         // Basket items

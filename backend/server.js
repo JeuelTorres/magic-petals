@@ -28,6 +28,7 @@ app.use('/api/products', require('./routes/products'))
 app.use('/api/orders', require('./routes/orders'))
 app.use('/api/faqs', require('./routes/faqs'))
 app.use('/api/messages', require('./routes/messages'))
+app.use('/api/upload', require('./routes/upload'))
 
 // Start listening
 app.listen(PORT, () => {

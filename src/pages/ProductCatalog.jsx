@@ -94,7 +94,7 @@ function ProductCatalog() {
     setError('')
   }
 
-  const handleAddToCart = () => {
+const handleAddToCart = async () => {
     if (!date || !time) {
       setError('Please pick a date and time.')
       return
@@ -104,33 +104,58 @@ function ProductCatalog() {
       return
     }
 
-    const productName = selected.category === 'eternal'
-      ? selected.roses_count + ' Roses (Eternal)'
-      : selected.name + ' (Natural)'
+    setError('')
 
-    addToCart({
-      type: 'bouquet',
-      productId: selected.id,
-      product: productName,
-      price: Number(selected.price),
-      image: selected.image,
-      quantity,
-      deliveryType,
-      address,
-      date,
-      time,
-      notes,
-      extras,
-      extraDetails,
-      flowerTypes,
-      customFlower,
-      roseColor,
-      hasInspo: !!inspoFile,
-    })
+    try {
+      // Upload extra images and get back filenames
+      const extraImageFilenames = {}
+      for (const extraId of Object.keys(extraImages)) {
+        const file = extraImages[extraId]
+        if (file) {
+          const { filename } = await api.uploadImage(file)
+          extraImageFilenames[extraId] = filename
+        }
+      }
 
-    setAddedMsg(`✅ ${quantity} × ${productName} added to cart!`)
-    setSelected(null)
-    setTimeout(() => setAddedMsg(''), 3000)
+      // Upload the inspo photo if there is one
+      let inspoFilename = null
+      if (inspoFile) {
+        const { filename } = await api.uploadImage(inspoFile)
+        inspoFilename = filename
+      }
+
+      const productName = selected.category === 'eternal'
+        ? selected.roses_count + ' Roses (Eternal)'
+        : selected.name + ' (Natural)'
+
+      addToCart({
+        type: 'bouquet',
+        productId: selected.id,
+        product: productName,
+        price: Number(selected.price),
+        image: selected.image,
+        quantity,
+        deliveryType,
+        address,
+        date,
+        time,
+        notes,
+        extras,
+        extraDetails,
+        extraImageFilenames,
+        flowerTypes,
+        customFlower,
+        roseColor,
+        hasInspo: !!inspoFile,
+        inspoFilename,
+      })
+
+      setAddedMsg('✅ ' + quantity + ' × ' + productName + ' added to cart!')
+      setSelected(null)
+      setTimeout(() => setAddedMsg(''), 3000)
+    } catch (err) {
+      setError('Failed to upload image: ' + err.message)
+    }
   }
 
   if (loading) {
