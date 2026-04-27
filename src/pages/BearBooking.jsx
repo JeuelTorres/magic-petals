@@ -98,7 +98,7 @@ function BearBooking() {
       recipient,
       date,
       time: time + ' ' + period,
-      address: deliveryType === 'delivery' ? streetVillage + ', ' + district : '',
+      address: streetVillage + ', ' + district,
       song: hasSinger ? song : null,
       basketItems,
       basketDescription,
