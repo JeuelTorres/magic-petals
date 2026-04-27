@@ -26,7 +26,8 @@ function BearBooking() {
   const [recipient, setRecipient] = useState('')
   const [date, setDate] = useState('')
   const [time, setTime] = useState('')
-const [streetVillage, setStreetVillage] = useState('')
+  const [period, setPeriod] = useState('AM')  
+  const [streetVillage, setStreetVillage] = useState('')
   const [district, setDistrict] = useState('')  
   const [song, setSong] = useState('')
   const [error, setError] = useState('')
@@ -64,6 +65,7 @@ const [streetVillage, setStreetVillage] = useState('')
     setRecipient('')
     setDate('')
     setTime('')
+    setPeriod('AM')
     setStreetVillage('')
     setDistrict('')
     setSong('')
@@ -95,7 +97,7 @@ const [streetVillage, setStreetVillage] = useState('')
       quantity,
       recipient,
       date,
-      time,
+      time: time + ' ' + period,
       address: deliveryType === 'delivery' ? streetVillage + ', ' + district : '',
       song: hasSinger ? song : null,
       basketItems,
@@ -258,12 +260,22 @@ const [streetVillage, setStreetVillage] = useState('')
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-600 mb-1">Delivery Time</label>
-                  <input
-                    type="time"
-                    value={time}
-                    onChange={e => setTime(e.target.value)}
-                    className="w-full border border-pink-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-pink-400"
-                  />
+                  <div className="flex gap-2">
+                    <input
+                      type="time"
+                      value={time}
+                      onChange={e => setTime(e.target.value)}
+                      className="flex-1 border border-pink-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-pink-400"
+                    />
+                    <select
+                      value={period}
+                      onChange={e => setPeriod(e.target.value)}
+                      className="border border-pink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-pink-400 bg-white font-semibold"
+                    >
+                      <option value="AM">AM</option>
+                      <option value="PM">PM</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 

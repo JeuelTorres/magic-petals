@@ -27,6 +27,7 @@ function ProductCatalog() {
   const [district, setDistrict] = useState('')
   const [date, setDate] = useState('')
   const [time, setTime] = useState('')
+  const [period, setPeriod] = useState('AM')
   const [notes, setNotes] = useState('')
   const [extras, setExtras] = useState([])
   const [extraDetails, setExtraDetails] = useState({})
@@ -86,6 +87,7 @@ function ProductCatalog() {
     setDistrict('')
     setDate('')
     setTime('')
+    setPeriod('AM')
     setNotes('')
     setExtras([])
     setExtraDetails({})
@@ -141,7 +143,7 @@ const handleAddToCart = async () => {
         quantity,
         deliveryType,
         address: deliveryType === 'delivery' ? streetVillage + ', ' + district : '',        date,
-        time,
+        time: time + ' ' + period,
         notes,
         extras,
         extraDetails,
@@ -363,16 +365,26 @@ const handleAddToCart = async () => {
                     className="w-full border border-pink-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-pink-400"
                   />
                 </div>
-                <div>
+               <div>
                   <label className="block text-sm font-medium text-gray-600 mb-1">
                     {deliveryType === 'pickup' ? 'Pickup Time' : 'Delivery Time'}
                   </label>
-                  <input
-                    type="time"
-                    value={time}
-                    onChange={e => setTime(e.target.value)}
-                    className="w-full border border-pink-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-pink-400"
-                  />
+                  <div className="flex gap-2">
+                    <input
+                      type="time"
+                      value={time}
+                      onChange={e => setTime(e.target.value)}
+                      className="flex-1 border border-pink-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-pink-400"
+                    />
+                    <select
+                      value={period}
+                      onChange={e => setPeriod(e.target.value)}
+                      className="border border-pink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-pink-400 bg-white font-semibold"
+                    >
+                      <option value="AM">AM</option>
+                      <option value="PM">PM</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 

@@ -12,7 +12,6 @@ import OrderManage from './pages/OrderManage'
 import Reminders from './pages/Reminders'
 import Inventory from './pages/Inventory'
 import Reports from './pages/Reports'
-import ProductManage from './pages/ProductManage'
 import Support from './pages/Support'
 
 function App() {
@@ -32,7 +31,6 @@ function App() {
         <Route path="/admin/reminders" element={<Reminders />} />
         <Route path="/admin/inventory" element={<Inventory />} />
         <Route path="/admin/reports" element={<Reports />} />
-        <Route path="/admin/products" element={<ProductManage />} />
         <Route path="/admin/support" element={<Support />} />
       </Routes>
     </BrowserRouter>
