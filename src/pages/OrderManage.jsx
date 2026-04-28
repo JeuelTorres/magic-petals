@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AdminNavbar from '../components/AdminNavbar'
 import { api } from '../api'
+import { format12Hour } from '../timeUtils'
 
 const UPLOADS_URL = 'http://localhost:3001/uploads/'
 
@@ -182,8 +183,7 @@ function OrderManage() {
                           </p>
                           <p className="text-xs text-gray-400">
                             {order.date ? new Date(order.date).toLocaleDateString() : '—'}
-                            {order.time && ' · ' + order.time}
-                          </p>
+                            {order.time && ' · ' + format12Hour(order.time)}                          </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
@@ -227,7 +227,7 @@ function OrderManage() {
                           )}
                           <p>
                             {order.date ? new Date(order.date).toLocaleDateString() : '—'}
-                            {order.time && ' · ' + order.time}
+                            {order.time && ' · ' + format12Hour(order.time)}
                           </p>
                         </div>
                       </div>

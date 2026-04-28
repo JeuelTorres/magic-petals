@@ -278,19 +278,19 @@ function Support() {
                           onClick={() => toggleEnabled(faq)}
                           className={faq.enabled ? 'text-xs bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded-full transition' : 'text-xs bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-full transition'}
                         >
-                          {faq.enabled ? '👁️ Hide' : '👁️ Show'}
+                          {faq.enabled ? ' Hide' : ' Show'}
                         </button>
                         <button
                           onClick={() => startEdit(faq)}
                           className="text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-full transition"
                         >
-                          ✏️ Edit
+                           Edit
                         </button>
                         <button
                           onClick={() => deleteFAQ(faq.id)}
                           className="text-xs bg-gray-500 hover:bg-red-600 text-white px-3 py-1 rounded-full transition"
                         >
-                          🗑️
+                           Delete
                         </button>
                       </div>
                     </div>

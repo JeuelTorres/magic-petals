@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import AdminNavbar from '../components/AdminNavbar'
 import { api } from '../api'
 import { sendAdminReminder } from '../email'
+import { format12Hour } from '../timeUtils'
 
 function Reminders() {
   const navigate = useNavigate()
@@ -11,7 +12,7 @@ function Reminders() {
   const [loading, setLoading] = useState(true)
   const notifiedRef = useRef(new Set())
 
-  const session = JSON.parse(sessionStorage.getItem('mp_session') || '{}')
+  const session = JSON.parse(localStorage.getItem('mp_session') || '{}')
 
   useEffect(() => {
     if (session.role !== 'admin') {
@@ -178,7 +179,7 @@ function Reminders() {
                   <p className="text-sm text-gray-500 mb-3">{order.ref}</p>
 
                   <div className="space-y-1 text-sm text-gray-700 bg-white rounded-lg p-3 border border-red-100">
-                    <p>📅 <strong>{formatDate(order)}</strong> at {order.time || 'TBD'}</p>
+                    <p>📅 <strong>{formatDate(order)}</strong> at {format12Hour(order.time) || 'TBD'}</p>
                     <p>👤 {order.customer}{order.recipient ? ' → ' + order.recipient : ''}</p>
                     {order.deliveryType === 'pickup' ? (
                       <p>🏪 Pickup at shop</p>
@@ -223,7 +224,7 @@ function Reminders() {
 
                     <div className="text-sm text-center min-w-[70px] bg-pink-50 rounded-lg p-2">
                       <p className="font-bold text-pink-700 text-xs">{formatDate(order).split(',')[0]}</p>
-                      <p className="text-gray-600 text-xs">{order.time}</p>
+                      <p className="text-gray-600 text-xs">{format12Hour(order.time) || 'TBD'}</p>
                     </div>
 
                     <div className="flex-1 min-w-0">

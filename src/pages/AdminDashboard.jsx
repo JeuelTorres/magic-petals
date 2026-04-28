@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AdminNavbar from '../components/AdminNavbar'
 import { api } from '../api'
+import { format12Hour } from '../timeUtils'
 
 function AdminDashboard() {
   const navigate = useNavigate()
@@ -95,7 +96,7 @@ function AdminDashboard() {
         </p>
         <p>
           📅 {order.date ? new Date(order.date).toLocaleDateString() : '—'}
-          {order.time && ' · ⏰ ' + order.time}
+          {order.time && ' · ⏰ ' + format12Hour(order.time)}
         </p>
         <p className="text-pink-600 font-bold">BZD ${Number(order.price).toFixed(2)}</p>
       </div>
