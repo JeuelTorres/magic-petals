@@ -40,7 +40,7 @@ function AdminDashboard() {
     return diff > 0 && diff < 24 * 60 * 60 * 1000
   }
 
-  const urgentOrders = orders.filter(o => o.status !== 'cancelled' && isUrgent(o))
+  const urgentOrders = orders.filter(o => o.status !== 'cancelled' && o.status !== 'completed' && isUrgent(o))
 
   // Search filter
   const filterSearch = (o) => {

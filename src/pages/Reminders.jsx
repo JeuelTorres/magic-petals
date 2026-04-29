@@ -32,7 +32,7 @@ function Reminders() {
   const loadOrders = async () => {
     try {
       const { orders: all } = await api.getAllOrders()
-      const withDate = all.filter(o => o.date && o.status !== 'cancelled')
+      const withDate = all.filter(o => o.date && o.status !== 'cancelled' && o.status !== 'completed')
       setOrders(withDate)
 
       withDate.forEach(o => {
@@ -80,10 +80,11 @@ function Reminders() {
   }
 
   const isUrgent = (o) => {
-    const delivery = getDeliveryDate(o)
-    const diff = delivery - now
-    return diff > 0 && diff < 24 * 60 * 60 * 1000
-  }
+  if (o.status === 'completed') return false
+  const delivery = getDeliveryDate(o)
+  const diff = delivery - now
+  return diff > 0 && diff < 24 * 60 * 60 * 1000
+}
 
   const isPast = (o) => getDeliveryDate(o) < now
 
