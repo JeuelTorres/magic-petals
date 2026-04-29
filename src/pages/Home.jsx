@@ -1,18 +1,19 @@
 import Navbar from '../components/Navbar'
+import Footer from '../components/Footer'
 import { useNavigate } from 'react-router-dom'
 
 function Home() {
   const navigate = useNavigate()
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white flex flex-col">
 
-        <Navbar />
+      <Navbar />
 
       {/* HERO */}
       <div className="relative bg-pink-100 min-h-[90vh] flex items-center justify-center overflow-hidden">
-       <img src="/Tulips.png" className="absolute left-0 top-1/2 -translate-y-1/2 w-1/2 object-cover pointer-events-none select-none -translate-x-36" />
-       <img src="/Tulips.png" className="absolute right-0 top-1/2 -translate-y-1/2 w-1/2 object-cover pointer-events-none select-none scale-x-[-1] translate-x-36" />
+        <img src="/Tulips.png" className="absolute left-0 top-1/2 -translate-y-1/2 w-1/2 object-cover pointer-events-none select-none -translate-x-36" />
+        <img src="/Tulips.png" className="absolute right-0 top-1/2 -translate-y-1/2 w-1/2 object-cover pointer-events-none select-none scale-x-[-1] translate-x-36" />
 
         <div className="relative text-center px-6 max-w-3xl">
           <p className="text-pink-600 text-sm font-semibold tracking-widest uppercase mb-4">
@@ -46,7 +47,7 @@ function Home() {
       {/* WHY US */}
       <div className="py-20 px-6 bg-white">
         <div className="max-w-5xl mx-auto text-center">
-          <p className="text-pink-600 text-sm font-semibold tracking-widest uppercase mb-2">Why Magic Petals</p>
+          <p className="text-pink-600 text-sm font-semibold tracking-widest uppercase mb-2">Why Magic Pettals</p>
           <h2 className="text-3xl font-bold text-gray-800 mb-12">More than just flowers</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
@@ -73,9 +74,9 @@ function Home() {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { roses: 12,  price: 75,  image: "/12.jpeg", label: 'Most Popular' },
-              { roses: 25,  price: 141, image: "/25.jpeg", label: 'Best for Anniversaries' },
-              { roses: 50,  price: 309, image: "/50.jpeg", label: 'Grand Gesture' },
+              { roses: 12,  price: 75,  image: "/12.jpeg",  label: 'Most Popular' },
+              { roses: 25,  price: 141, image: "/25.jpeg",  label: 'Best for Anniversaries' },
+              { roses: 50,  price: 309, image: "/50.jpeg",  label: 'Grand Gesture' },
               { roses: 100, price: 563, image: "/100.jpeg", label: 'Ultimate Romance' },
             ].map((b, i) => (
               <div
@@ -105,16 +106,12 @@ function Home() {
         </div>
       </div>
 
-      {/* BEAR DELIVERY SECTION */}
+      {/* BEAR DELIVERY */}
       <div className="py-20 px-6 bg-white">
-  <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center gap-12">
-    <div className="bg-pink-100 rounded-3xl w-64 h-64 flex items-center justify-center flex-shrink-0 overflow-hidden">
-      <img 
-        src="/bear.jpeg" 
-        alt="Magic Bear" 
-        className="w-full h-full object-cover rounded-3xl" 
-      />
-    </div>
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center gap-12">
+          <div className="bg-pink-100 rounded-3xl w-64 h-64 flex items-center justify-center flex-shrink-0 overflow-hidden">
+            <img src="/bear.jpeg" alt="Magic Bear" className="w-full h-full object-cover rounded-3xl" />
+          </div>
           <div className="flex-1">
             <p className="text-pink-600 text-sm font-semibold tracking-widest uppercase mb-2">Something Special</p>
             <h2 className="text-3xl font-bold text-gray-800 mb-4">The Magic Bear Experience</h2>
@@ -151,7 +148,7 @@ function Home() {
           <h2 className="text-3xl font-bold text-gray-800 mb-6">About Magic Pettals</h2>
           <div className="text-6xl mb-6">🌸</div>
           <p className="text-gray-500 leading-relaxed mb-4">
-            Magic Petals was born from a simple belief — that flowers should last
+            Magic Pettals was born from a simple belief — that flowers should last
             as long as the feelings they represent. Based right here in Belize, we
             specialize in eternal roses that never fade, and unforgettable delivery
             experiences that create memories for a lifetime.
@@ -164,19 +161,7 @@ function Home() {
         </div>
       </div>
 
-      {/* FOOTER */}
-      <div className="bg-gray-900 text-gray-400 py-10 px-6 text-center">
-        <h3 className="text-white text-xl font-bold italic mb-2">🌸 Magic Petals</h3>
-        <p className="text-sm mb-6">Eternal roses & bear delivery — Belize</p>
-        <div className="flex justify-center gap-8 text-sm mb-6">
-          <button onClick={() => navigate('/')} className="hover:text-white transition">Home</button>
-          <button onClick={() => navigate('/catalog')} className="hover:text-white transition">Shop</button>
-          <button onClick={() => navigate('/book-bear')} className="hover:text-white transition">Bear Delivery</button>
-          <button onClick={() => navigate('/faq')} className="hover:text-white transition">FAQ</button>
-          <button onClick={() => navigate('/login')} className="hover:text-white transition">Login</button>
-        </div>
-        <p className="text-xs text-gray-600">© 2025 Magic Petals. All rights reserved.</p>
-      </div>
+      <Footer />
 
     </div>
   )

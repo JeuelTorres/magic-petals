@@ -101,7 +101,7 @@ function Support() {
       <div className="max-w-6xl mx-auto px-6 py-6">
 
         <div className="mb-6">
-          <h2 className="text-3xl font-bold text-gray-800">💬 Support Center</h2>
+          <h2 className="text-3xl font-bold text-gray-800">Support Center</h2>
           <p className="text-gray-500">Manage customer messages and FAQ content</p>
         </div>
 

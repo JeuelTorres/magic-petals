@@ -22,7 +22,7 @@ function AdminNavbar() {
   return (
     <nav className="bg-gray-900 text-white px-6 py-3 flex justify-between items-center sticky top-0 z-50 shadow-md">
       <div className="flex items-center gap-2">
-        <span className="text-xl font-bold italic text-pink-400"> Magic Pettals</span>
+        <span className="text-xl font-bold italic text-pink-400"> Magic Petals</span>
         <span className="text-xs bg-pink-600 text-white px-2 py-0.5 rounded-full font-semibold">ADMIN</span>
       </div>
 
