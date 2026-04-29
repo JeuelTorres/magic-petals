@@ -38,9 +38,9 @@ export const api = {
   getAllProducts: () => request('/products?all=true'),        // admin (includes hidden)
   getProduct: (id) => request('/products/' + id),
   addProduct: (data) => request('/products', { method: 'POST', body: JSON.stringify(data) }),
-  updateProduct: (id, data) => request('/products/' + id, { method: 'PUT', body: JSON.stringify(data) }),
-  deleteProduct: (id) => request('/products/' + id, { method: 'DELETE' }),
-  getCategories: () => request('/products/admin/categories'),
+    updateProduct: (id, data) => request('/products/' + id, { method: 'PUT', body: JSON.stringify(data) }),
+    deleteProduct: (id) => request('/products/' + id, { method: 'DELETE' }),
+    getCategories: () => request('/products/admin/categories'),
 
   // Orders
   createOrder: (user_id, items) => request('/orders', { method: 'POST', body: JSON.stringify({ user_id, items }) }),

@@ -5,7 +5,7 @@ import Register from './pages/Register'
 import ProductCatalog from './pages/ProductCatalog'
 import BearBooking from './pages/BearBooking'
 import Cart from './pages/Cart'
-import MyOrders from './pages/MyOrders'   
+import MyOrders from './pages/MyOrders'
 import OrderConfirm from './pages/OrderConfirm'
 import FAQ from './pages/FAQ'
 import OrderManage from './pages/OrderManage'
@@ -28,7 +28,7 @@ function App() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/order-confirm" element={<OrderConfirm />} />
         <Route path="/faq" element={<FAQ />} />
-        <Route path="/my-orders" element={<MyOrders />} />  
+        <Route path="/my-orders" element={<MyOrders />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/orders" element={<OrderManage />} />
         <Route path="/admin/reminders" element={<Reminders />} />
