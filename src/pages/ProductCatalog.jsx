@@ -8,12 +8,39 @@ const EXTRAS = [
   { id: 'message',    label: '💌 Message Card',    desc: 'Add a personal message card',   question: 'What would you like written on the message card?', placeholder: 'e.g. "Happy Birthday! Love you so much 💕"', hasImage: false },
   { id: 'balloon',    label: '🎈 Foil Balloon',    desc: 'Add a festive foil balloon',    question: 'What should go on the foil balloon?',            placeholder: 'e.g. "Happy Birthday", "I Love You"',         hasImage: true  },
   { id: 'chocolates', label: '🍫 Chocolates',      desc: 'Add a box of chocolates',       question: 'What type of chocolates would you like?',        placeholder: 'e.g. Milk, Dark, Ferrero Rocher, Mixed',       hasImage: false },
-  { id: 'teddy',      label: '🧸 Small Teddy Bear', desc: 'Add a cute small teddy bear',   question: 'Any preference for the teddy bear?',             placeholder: 'e.g. Color, size, style',                      hasImage: true  },
+  { id: 'teddy',      label: '🧸 Small Teddy Bear', desc: 'Add a cute small teddy bear',  question: 'Any preference for the teddy bear?',             placeholder: 'e.g. Color, size, style',                      hasImage: true  },
   { id: 'ribbon',     label: '🎀 Premium Ribbon',  desc: 'Upgrade to a premium ribbon',   question: 'What color or style ribbon would you like?',     placeholder: 'e.g. Red satin, White lace, Gold metallic',    hasImage: false },
   { id: 'box',        label: '📦 Gift Box',        desc: 'Present in a luxury gift box',  question: 'Any preference for the gift box?',               placeholder: 'e.g. Color, style, special requests',          hasImage: false },
 ]
 
 const ROSE_COLORS = ['Red', 'Pink', 'White', 'Yellow', 'Purple', 'Mixed']
+
+// Business hours by day (0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat)
+const HOURS = {
+  0: { open: '09:00', close: '17:00' }, // Sunday
+  1: { open: '08:00', close: '17:00' }, // Monday
+  2: { open: '08:00', close: '18:00' }, // Tuesday
+  3: { open: '08:00', close: '18:00' }, // Wednesday
+  4: { open: '08:00', close: '18:00' }, // Thursday
+  5: { open: '08:00', close: '17:00' }, // Friday
+  6: null,                               // Saturday — CLOSED
+}
+
+const getHoursForDate = (dateStr) => {
+  if (!dateStr) return null
+  const day = new Date(dateStr + 'T00:00:00').getDay()
+  return HOURS[day]
+}
+
+const isClosed = (dateStr) => getHoursForDate(dateStr) === null
+
+const to12hr = (time24) => {
+  const [h, m] = time24.split(':')
+  const hour = parseInt(h)
+  const ampm = hour >= 12 ? 'PM' : 'AM'
+  const hour12 = hour % 12 === 0 ? 12 : hour % 12
+  return `${hour12}:${m} ${ampm}`
+}
 
 function ProductCatalog() {
   const navigate = useNavigate()
@@ -43,7 +70,6 @@ function ProductCatalog() {
 
   const today = new Date().toISOString().slice(0, 10)
 
-  // Load products from backend when the page opens
   useEffect(() => {
     const load = async () => {
       try {
@@ -101,11 +127,25 @@ function ProductCatalog() {
     setError('')
   }
 
-const handleAddToCart = async () => {
+  const handleAddToCart = async () => {
     if (!date || !time) {
       setError('Please pick a date and time.')
       return
     }
+
+    if (isClosed(date)) {
+      setError('We are closed on the selected date. Please choose a different day.')
+      return
+    }
+
+    const hours = getHoursForDate(date)
+    if (hours && time) {
+      if (time < hours.open || time > hours.close) {
+        setError(`Please choose a time between ${to12hr(hours.open)} and ${to12hr(hours.close)} for the selected day.`)
+        return
+      }
+    }
+
     if (deliveryType === 'delivery' && (!streetVillage || !district)) {
       setError('Please enter both street/village and district.')
       return
@@ -113,7 +153,6 @@ const handleAddToCart = async () => {
     setError('')
 
     try {
-      // Upload extra images and get back filenames
       const extraImageFilenames = {}
       for (const extraId of Object.keys(extraImages)) {
         const file = extraImages[extraId]
@@ -123,7 +162,6 @@ const handleAddToCart = async () => {
         }
       }
 
-      // Upload the inspo photo if there is one
       let inspoFilename = null
       if (inspoFile) {
         const { filename } = await api.uploadImage(inspoFile)
@@ -142,8 +180,9 @@ const handleAddToCart = async () => {
         image: selected.image,
         quantity,
         deliveryType,
-        address: deliveryType === 'delivery' ? streetVillage + ', ' + district : '',        date,
-        time: time + ' ' + period,
+        address: deliveryType === 'delivery' ? streetVillage + ', ' + district : '',
+        date,
+        time: to12hr(time),
         notes,
         extras,
         extraDetails,
@@ -169,7 +208,7 @@ const handleAddToCart = async () => {
       <div className="min-h-screen bg-pink-50">
         <Navbar />
         <div className="flex items-center justify-center py-20">
-          <p className="text-pink-600 text-lg animate-pulse"> Loading flowers...</p>
+          <p className="text-pink-600 text-lg animate-pulse">Loading flowers...</p>
         </div>
       </div>
     )
@@ -180,27 +219,23 @@ const handleAddToCart = async () => {
 
       <Navbar />
 
-      {/* Added to cart popup */}
       {addedMsg && (
         <div className="fixed top-20 right-4 bg-green-500 text-white px-5 py-3 rounded-full shadow-lg z-50 font-semibold animate-bounce">
           {addedMsg}
         </div>
       )}
 
-      {/* Hero */}
       <div className="bg-gradient-to-r from-pink-700 to-pink-500 text-white px-6 py-10 text-center">
-        <h2 className="text-3xl font-bold mb-2">  Eternal Rose Bouquets</h2>
+        <h2 className="text-3xl font-bold mb-2">Eternal Rose Bouquets</h2>
         <p className="text-pink-100">Preserved forever — never fade, never wilt. Real roses, real love.</p>
       </div>
 
-      {/* Banner */}
       <div className="max-w-6xl mx-auto px-6 mt-6">
         <div className="bg-pink-100 border border-pink-300 rounded-lg p-3 text-pink-800 text-sm">
           🌿 We also create <strong>Natural Flower Bouquets</strong> — scroll down to order fresh natural flowers!
         </div>
       </div>
 
-      {/* Eternal Roses Grid */}
       <div className="max-w-6xl mx-auto px-6 py-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {bouquets.map(b => (
           <div
@@ -220,10 +255,9 @@ const handleAddToCart = async () => {
         ))}
       </div>
 
-      {/* Natural Flowers Section */}
       <div className="max-w-6xl mx-auto px-6 mt-2 mb-10">
         <div className="bg-gradient-to-r from-pink-800 to-pink-400 text-white px-6 py-8 text-center rounded-2xl mb-6">
-          <h2 className="text-3xl font-bold mb-2"> Natural Flower Bouquets</h2>
+          <h2 className="text-3xl font-bold mb-2">Natural Flower Bouquets</h2>
           <p className="text-pink-100">Fresh, fragrant, and straight from nature — made with love.</p>
         </div>
 
@@ -247,7 +281,6 @@ const handleAddToCart = async () => {
         </div>
       </div>
 
-      {/* Detail Modal */}
       {selected && (
         <div
           className="fixed inset-0 flex items-center justify-center p-4 z-50"
@@ -255,7 +288,6 @@ const handleAddToCart = async () => {
         >
           <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto">
 
-            {/* Modal Header */}
             <div className={`text-white p-6 rounded-t-2xl ${selected.category === 'eternal' ? 'bg-gradient-to-r from-pink-700 to-pink-500' : 'bg-gradient-to-r from-pink-800 to-pink-400'}`}>
               <div className="flex justify-between items-start">
                 <div className="w-full pr-4">
@@ -321,7 +353,7 @@ const handleAddToCart = async () => {
                   </div>
                 </div>
 
-                    {deliveryType === 'delivery' && (
+                {deliveryType === 'delivery' && (
                   <div className="space-y-2">
                     <input
                       value={streetVillage}
@@ -361,37 +393,56 @@ const handleAddToCart = async () => {
                     type="date"
                     value={date}
                     min={today}
-                    onChange={e => setDate(e.target.value)}
+                    onChange={e => {
+                      setDate(e.target.value)
+                      setTime('')
+                    }}
                     className="w-full border border-pink-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-pink-400"
                   />
+                  {date && isClosed(date) && (
+                    <p className="text-red-500 text-xs mt-1 font-semibold">⛔ We are closed this day. Please pick another.</p>
+                  )}
+                  {date && !isClosed(date) && (
+                    <p className="text-green-600 text-xs mt-1">
+                      Open {to12hr(getHoursForDate(date).open)} – {to12hr(getHoursForDate(date).close)}
+                    </p>
+                  )}
                 </div>
-               <div>
+                <div>
                   <label className="block text-sm font-medium text-gray-600 mb-1">
                     {deliveryType === 'pickup' ? 'Pickup Time' : 'Delivery Time'}
                   </label>
-                  <div className="flex gap-2">
+                  {date && !isClosed(date) ? (
+                    <div className="space-y-1">
+                      <input
+                        type="time"
+                        value={time}
+                        min={getHoursForDate(date).open}
+                        max={getHoursForDate(date).close}
+                        onChange={e => setTime(e.target.value)}
+                        className="w-full border border-pink-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-pink-400"
+                      />
+                    </div>
+                  ) : (
                     <input
                       type="time"
-                      value={time}
-                      onChange={e => setTime(e.target.value)}
-                      className="flex-1 border border-pink-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-pink-400"
+                      disabled
+                      className="w-full border border-gray-200 rounded-lg px-4 py-2 text-sm bg-gray-100 text-gray-400 cursor-not-allowed"
                     />
-                    <select
-                      value={period}
-                      onChange={e => setPeriod(e.target.value)}
-                      className="border border-pink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-pink-400 bg-white font-semibold"
-                    >
-                      <option value="AM">AM</option>
-                      <option value="PM">PM</option>
-                    </select>
-                  </div>
+                  )}
+                  {date && isClosed(date) && (
+                    <p className="text-red-400 text-xs mt-1">Not available</p>
+                  )}
+                  {date && !isClosed(date) && time && (time < getHoursForDate(date).open || time > getHoursForDate(date).close) && (
+                    <p className="text-red-500 text-xs mt-1">Outside business hours</p>
+                  )}
                 </div>
               </div>
 
-            {/* Rose Color — only for Eternal */}
+              {/* Rose Color — only for Eternal */}
               {selected.category === 'eternal' && (
                 <div className="mb-4 bg-pink-50 border border-pink-200 rounded-lg p-3">
-                  <p className="text-sm font-medium text-pink-700 mb-2"> Choose Rose Color(s) — pick one or more</p>
+                  <p className="text-sm font-medium text-pink-700 mb-2">Choose Rose Color(s) — pick one or more</p>
                   <div className="grid grid-cols-3 gap-2 mb-3">
                     {ROSE_COLORS.map(color => (
                       <div
@@ -405,8 +456,6 @@ const handleAddToCart = async () => {
                       </div>
                     ))}
                   </div>
-
-                  {/* Custom mix input — shows when Mixed is selected */}
                   {roseColors.includes('Mixed') && (
                     <div>
                       <p className="text-xs text-pink-700 font-semibold mb-1">Specify your mix (optional):</p>
@@ -456,7 +505,6 @@ const handleAddToCart = async () => {
                 {showCustom ? '✕ Hide Customization' : 'Customize My Order'}
               </button>
 
-              {/* Customization Section */}
               {showCustom && (
                 <div className="bg-pink-50 rounded-xl p-4 mb-4 border border-pink-200">
                   <h4 className="font-bold text-pink-700 mb-3">Make It Special</h4>
@@ -529,7 +577,6 @@ const handleAddToCart = async () => {
                 </div>
               )}
 
-              {/* Add to Cart Button */}
               <button
                 onClick={handleAddToCart}
                 className="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 rounded-full transition text-lg"

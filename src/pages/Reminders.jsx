@@ -39,7 +39,7 @@ function Reminders() {
         if (isUrgent(o) && !notifiedRef.current.has(o.id)) {
           // Browser notification
           if ('Notification' in window && Notification.permission === 'granted') {
-            new Notification('🌸 Magic Pettals — Urgent Delivery', {
+            new Notification('🌸 Magic Petals — Urgent Delivery', {
               body: o.product + ' for ' + (o.recipient || o.customer) + ' at ' + (o.time || 'TBD'),
               icon: '/favicon.svg',
             })
@@ -114,7 +114,7 @@ function Reminders() {
       <div className="min-h-screen bg-pink-50">
         <AdminNavbar />
         <div className="flex items-center justify-center py-20">
-          <p className="text-pink-600 text-lg animate-pulse">🔔 Loading reminders...</p>
+          <p className="text-pink-600 text-lg animate-pulse">Loading reminders...</p>
         </div>
       </div>
     )
@@ -130,7 +130,7 @@ function Reminders() {
         {/* Header */}
         <div className="flex justify-between items-start flex-wrap gap-4 mb-6">
           <div>
-            <h2 className="text-3xl font-bold text-gray-800">🔔 Delivery Reminders</h2>
+            <h2 className="text-3xl font-bold text-gray-800">Delivery Reminders</h2>
             <p className="text-gray-500">All upcoming deliveries — sorted by date</p>
           </div>
 
@@ -139,11 +139,11 @@ function Reminders() {
               onClick={requestNotifications}
               className="bg-pink-600 hover:bg-pink-700 text-white font-semibold px-5 py-2 rounded-full transition"
             >
-              🔔 Enable Notifications
+              Enable Notifications
             </button>
           ) : (
             <span className="bg-green-100 text-green-700 font-semibold px-4 py-2 rounded-full text-sm">
-              ✅ Notifications On
+              Notifications On
             </span>
           )}
         </div>
@@ -151,7 +151,7 @@ function Reminders() {
         {/* Notification info banner */}
         {!notifEnabled && (
           <div className="bg-pink-100 border border-pink-300 rounded-xl p-4 text-pink-800 text-sm mb-6">
-            💡 <strong>Turn on notifications</strong> to get a ping whenever a delivery is within 24 hours — even when this tab is in the background!
+            <strong>Turn on notifications</strong> to get a ping whenever a delivery is within 24 hours — even when this tab is in the background!
           </div>
         )}
 
@@ -159,7 +159,7 @@ function Reminders() {
         {urgent.length > 0 && (
           <div className="mb-8">
             <h3 className="text-lg font-bold text-red-600 mb-3 flex items-center gap-2">
-              🚨 URGENT — Within 24 Hours
+              URGENT — Within 24 Hours
               <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">{urgent.length}</span>
             </h3>
 
@@ -172,7 +172,7 @@ function Reminders() {
                   <div className="flex justify-between items-start mb-3">
                     <div className="text-4xl">{typeIcon(order)}</div>
                     <span className="text-xs font-bold bg-red-600 text-white px-3 py-1 rounded-full animate-pulse">
-                      ⚡ {timeUntil(order)}
+                      {timeUntil(order)}
                     </span>
                   </div>
 
@@ -205,7 +205,7 @@ function Reminders() {
         {/* UPCOMING — COMPACT LIST */}
         <div className="mb-6">
           <h3 className="text-lg font-bold text-gray-700 mb-3 flex items-center gap-2">
-            📅 Upcoming Deliveries
+            Upcoming Deliveries
             <span className="text-xs bg-pink-100 text-pink-700 px-2 py-0.5 rounded-full">{upcoming.length}</span>
           </h3>
 

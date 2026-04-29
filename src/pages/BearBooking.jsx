@@ -17,6 +17,25 @@ const BASKET_ITEMS = [
   '🎁 Small Gifts',
 ]
 
+// Business hours by day (0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat)
+const HOURS = {
+  0: { open: '09:00', close: '17:00' }, // Sunday
+  1: { open: '08:00', close: '17:00' }, // Monday
+  2: { open: '08:00', close: '18:00' }, // Tuesday
+  3: { open: '08:00', close: '18:00' }, // Wednesday
+  4: { open: '08:00', close: '18:00' }, // Thursday
+  5: { open: '08:00', close: '17:00' }, // Friday
+  6: null,                               // Saturday — CLOSED
+}
+
+const getHoursForDate = (dateStr) => {
+  if (!dateStr) return null
+  const day = new Date(dateStr + 'T00:00:00').getDay()
+  return HOURS[day]
+}
+
+const isClosed = (dateStr) => getHoursForDate(dateStr) === null
+
 function BearBooking() {
   const navigate = useNavigate()
   const [bearPackages, setBearPackages] = useState([])
@@ -26,21 +45,19 @@ function BearBooking() {
   const [recipient, setRecipient] = useState('')
   const [date, setDate] = useState('')
   const [time, setTime] = useState('')
-  const [period, setPeriod] = useState('AM')  
+  const [period, setPeriod] = useState('AM')
   const [streetVillage, setStreetVillage] = useState('')
-  const [district, setDistrict] = useState('')  
+  const [district, setDistrict] = useState('')
   const [song, setSong] = useState('')
   const [error, setError] = useState('')
   const [addedMsg, setAddedMsg] = useState('')
 
-  // Customization
   const [showCustom, setShowCustom] = useState(false)
   const [basketItems, setBasketItems] = useState([])
   const [basketDescription, setBasketDescription] = useState('')
 
   const today = new Date().toISOString().slice(0, 10)
 
-  // Load bear packages from backend
   useEffect(() => {
     const load = async () => {
       try {
@@ -80,7 +97,20 @@ function BearBooking() {
       setError('Please fill in all required fields.')
       return
     }
-    // Package #3 is the one with the singer
+
+    if (isClosed(date)) {
+      setError('We are closed on the selected date. Please choose a different day.')
+      return
+    }
+
+    const hours = getHoursForDate(date)
+    if (hours && time) {
+      if (time < hours.open || time > hours.close) {
+        setError(`Please choose a time between ${hours.open} and ${hours.close} for the selected day.`)
+        return
+      }
+    }
+
     const hasSinger = selected.name === 'Package #3'
     if (hasSinger && !song) {
       setError('Please enter a song request for the solo singer.')
@@ -105,7 +135,7 @@ function BearBooking() {
       deliveryType: 'delivery',
     })
 
-    setAddedMsg(`✅ ${quantity} × ${selected.name} added to cart!`)
+    setAddedMsg(` ${quantity} × ${selected.name} added to cart!`)
     setSelected(null)
     setTimeout(() => setAddedMsg(''), 3000)
   }
@@ -115,7 +145,7 @@ function BearBooking() {
       <div className="min-h-screen bg-pink-50">
         <Navbar />
         <div className="flex items-center justify-center py-20">
-          <p className="text-pink-600 text-lg animate-pulse">🐻 Loading bear packages...</p>
+          <p className="text-pink-600 text-lg animate-pulse">Loading bear packages...</p>
         </div>
       </div>
     )
@@ -126,14 +156,12 @@ function BearBooking() {
 
       <Navbar />
 
-      {/* Added to cart popup */}
       {addedMsg && (
         <div className="fixed top-20 right-4 bg-green-500 text-white px-5 py-3 rounded-full shadow-lg z-50 font-semibold animate-bounce">
           {addedMsg}
         </div>
       )}
 
-      {/* Hero */}
       <div className="bg-gradient-to-r from-pink-700 to-pink-500 text-white px-6 py-10 text-center">
         <h2 className="text-3xl font-bold mb-2">Magic Bear Delivery</h2>
         <p className="text-pink-100 max-w-xl mx-auto">
@@ -141,14 +169,12 @@ function BearBooking() {
         </p>
       </div>
 
-      {/* Info banner */}
       <div className="max-w-6xl mx-auto px-6 mt-6">
         <div className="bg-pink-100 border border-pink-300 rounded-lg p-3 text-pink-800 text-sm">
-          Want to add items for kids? Tap any package and hit <strong>Customize My Order</strong> to build a personalized gift basket on top of your package!
+          Want to add items? Tap any package and hit <strong>Customize My Order</strong> to build a personalized gift basket on top of your package!
         </div>
       </div>
 
-      {/* Packages Grid */}
       <div className="max-w-6xl mx-auto px-6 py-8">
         <h3 className="text-2xl font-bold text-gray-800 text-center mb-2">Choose Your Package</h3>
         <p className="text-gray-500 text-center mb-8">Tap a package to book</p>
@@ -165,14 +191,13 @@ function BearBooking() {
                 <div className="bg-pink-100 aspect-square overflow-hidden">
                   <img src={pkg.image} alt={pkg.name} className="w-full h-full object-cover" />
                 </div>
-
                 <div className="p-5">
                   {isMostPopular && (
                     <span className="inline-block text-xs bg-pink-600 text-white px-3 py-1 rounded-full font-semibold mb-2">
                       ⭐ Most Popular
                     </span>
                   )}
-                  <h3 className="text-xl font-bold text-pink-800">🐻 {pkg.name}</h3>
+                  <h3 className="text-xl font-bold text-pink-800">{pkg.name}</h3>
                   <p className="text-2xl font-bold text-pink-600 mt-1 mb-3">BZD ${pkg.price}</p>
                   <p className="text-sm text-gray-600 leading-relaxed">{pkg.includes}</p>
                   <button className="w-full mt-4 bg-pink-600 hover:bg-pink-700 text-white font-semibold py-2 rounded-full transition">
@@ -185,7 +210,6 @@ function BearBooking() {
         </div>
       </div>
 
-      {/* Booking Modal */}
       {selected && (
         <div
           className="fixed inset-0 flex items-center justify-center p-4 z-50"
@@ -193,7 +217,6 @@ function BearBooking() {
         >
           <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto">
 
-            {/* Modal Header */}
             <div className="bg-gradient-to-r from-gray-800 to-pink-700 text-white p-6 rounded-t-2xl">
               <div className="flex justify-between items-start">
                 <div className="w-full pr-4">
@@ -216,7 +239,6 @@ function BearBooking() {
                 </div>
               )}
 
-              {/* Quantity */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-600 mb-2">Quantity</label>
                 <div className="flex items-center gap-3">
@@ -235,7 +257,6 @@ function BearBooking() {
                 </div>
               </div>
 
-              {/* Recipient */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-600 mb-1">Recipient's Name</label>
                 <input
@@ -254,32 +275,59 @@ function BearBooking() {
                     type="date"
                     value={date}
                     min={today}
-                    onChange={e => setDate(e.target.value)}
+                    onChange={e => {
+                      setDate(e.target.value)
+                      setTime('')
+                    }}
                     className="w-full border border-pink-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-pink-400"
                   />
-                </div>
+                  {date && isClosed(date) && (
+                    <p className="text-red-500 text-xs mt-1 font-semibold">We are closed this day. Please pick another.</p>
+                  )}
+                  {date && !isClosed(date) && (
+                  <p className="text-green-600 text-xs mt-1">
+                    Open {(() => {
+                      const [h, m] = getHoursForDate(date).open.split(':')
+                      const hour = parseInt(h)
+                      const ampm = hour >= 12 ? 'PM' : 'AM'
+                      const hour12 = hour % 12 === 0 ? 12 : hour % 12
+                      return `${hour12}:${m} ${ampm}`
+                    })()} – {(() => {
+                      const [h, m] = getHoursForDate(date).close.split(':')
+                      const hour = parseInt(h)
+                      const ampm = hour >= 12 ? 'PM' : 'AM'
+                      const hour12 = hour % 12 === 0 ? 12 : hour % 12
+                      return `${hour12}:${m} ${ampm}`
+                    })()}
+                  </p>
+                )}                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-600 mb-1">Delivery Time</label>
-                  <div className="flex gap-2">
+                  {date && !isClosed(date) ? (
                     <input
                       type="time"
                       value={time}
+                      min={getHoursForDate(date).open}
+                      max={getHoursForDate(date).close}
                       onChange={e => setTime(e.target.value)}
-                      className="flex-1 border border-pink-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-pink-400"
+                      className="w-full border border-pink-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-pink-400"
                     />
-                    <select
-                      value={period}
-                      onChange={e => setPeriod(e.target.value)}
-                      className="border border-pink-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-pink-400 bg-white font-semibold"
-                    >
-                      <option value="AM">AM</option>
-                      <option value="PM">PM</option>
-                    </select>
-                  </div>
+                  ) : (
+                    <input
+                      type="time"
+                      disabled
+                      className="w-full border border-gray-200 rounded-lg px-4 py-2 text-sm bg-gray-100 text-gray-400 cursor-not-allowed"
+                    />
+                  )}
+                  {date && isClosed(date) && (
+                    <p className="text-red-400 text-xs mt-1">Not available</p>
+                  )}
+                  {date && !isClosed(date) && time && (time < getHoursForDate(date).open || time > getHoursForDate(date).close) && (
+                    <p className="text-red-500 text-xs mt-1">Outside business hours</p>
+                  )}
                 </div>
               </div>
 
-              {/* Address */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-600 mb-1">Delivery Address</label>
                 <div className="space-y-2">
@@ -305,7 +353,6 @@ function BearBooking() {
                 </div>
               </div>
 
-              {/* Song Request — only for Package #3 */}
               {selected.name === 'Package #3' && (
                 <div className="mb-4 bg-pink-50 border border-pink-200 rounded-lg p-4">
                   <label className="block text-sm font-semibold text-pink-700 mb-1">
@@ -321,7 +368,6 @@ function BearBooking() {
                 </div>
               )}
 
-              {/* Customize Toggle */}
               <button
                 onClick={() => setShowCustom(!showCustom)}
                 className="w-full border-2 border-pink-400 text-pink-600 font-semibold py-2 rounded-full mb-4 hover:bg-pink-50 transition"
@@ -329,14 +375,12 @@ function BearBooking() {
                 {showCustom ? '✕ Hide Customization' : 'Customize My Order'}
               </button>
 
-              {/* Customization Section */}
               {showCustom && (
                 <div className="bg-pink-50 rounded-xl p-4 mb-4 border border-pink-200">
                   <h4 className="font-bold text-pink-700 mb-1">Build Your Gift Basket</h4>
                   <p className="text-xs text-gray-500 mb-3">
                     Add kid-friendly items on top of your bear package. Pricing varies — our team will confirm the final total.
                   </p>
-
                   <p className="text-sm font-medium text-gray-600 mb-2">Pick items to add:</p>
                   <div className="grid grid-cols-2 gap-2 mb-3">
                     {BASKET_ITEMS.map(item => (
@@ -353,7 +397,6 @@ function BearBooking() {
                       </div>
                     ))}
                   </div>
-
                   <div>
                     <label className="block text-sm font-medium text-gray-600 mb-1">Any other details?</label>
                     <textarea
@@ -366,12 +409,11 @@ function BearBooking() {
                 </div>
               )}
 
-              {/* Add to Cart Button */}
               <button
                 onClick={handleAddToCart}
                 className="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 rounded-full transition text-lg"
               >
-                🛒 Add to Cart — BZD ${selected.price * quantity}
+                Add to Cart — BZD ${selected.price * quantity}
               </button>
 
               <p className="text-center text-xs text-gray-400 mt-2">

@@ -65,4 +65,5 @@ export const api = {
   // Upload
   uploadImage: (file) => uploadFile(file),
   
+  
 }

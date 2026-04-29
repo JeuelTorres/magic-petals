@@ -145,7 +145,7 @@ function AdminDashboard() {
         {/* Header */}
         <div className="mb-6">
           <h2 className="text-3xl font-bold text-gray-800">Dashboard</h2>
-          <p className="text-gray-500">Welcome back! Here's what's happening with Magic Pettals today.</p>
+          <p className="text-gray-500">Welcome back! Here's what's happening with Magic Petals today.</p>
         </div>
 
         {/* Urgent banner */}
