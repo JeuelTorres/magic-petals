@@ -34,8 +34,13 @@ export const api = {
   login: (email, password) => request('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
 
   // Products
-  getProducts: () => request('/products'),
-  getProduct: (id) => request(`/products/${id}`),
+  getProducts: () => request('/products'),                    // customer-facing (only enabled)
+  getAllProducts: () => request('/products?all=true'),        // admin (includes hidden)
+  getProduct: (id) => request('/products/' + id),
+  addProduct: (data) => request('/products', { method: 'POST', body: JSON.stringify(data) }),
+  updateProduct: (id, data) => request('/products/' + id, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteProduct: (id) => request('/products/' + id, { method: 'DELETE' }),
+  getCategories: () => request('/products/admin/categories'),
 
   // Orders
   createOrder: (user_id, items) => request('/orders', { method: 'POST', body: JSON.stringify({ user_id, items }) }),
@@ -59,4 +64,5 @@ export const api = {
 
   // Upload
   uploadImage: (file) => uploadFile(file),
+  
 }

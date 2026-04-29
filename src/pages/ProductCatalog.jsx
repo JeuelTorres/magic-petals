@@ -212,7 +212,7 @@ const handleAddToCart = async () => {
               <img src={b.image} alt={`${b.roses_count} Roses`} className="w-full h-full object-cover object-center" />
             </div>
             <div className="p-4">
-              <h3 className="font-bold text-pink-800">{b.roses_count} Roses</h3>
+              <h3 className="font-bold text-pink-800">{b.name}</h3>
               <p className="text-xs text-gray-400 mb-2">Tap to see details</p>
               <p className="text-lg font-bold text-pink-600">BZD ${b.price}</p>
             </div>
