@@ -24,7 +24,7 @@ function OrderConfirm() {
               onClick={() => navigate('/catalog')}
               className="bg-pink-600 hover:bg-pink-700 text-white font-semibold px-6 py-3 rounded-full transition"
             >
-              Browse Flowers 🌹
+              Browse Flowers
             </button>
           </div>
         </div>
@@ -41,11 +41,10 @@ function OrderConfirm() {
       <div className="max-w-2xl mx-auto px-6 py-8">
 
         <div className="bg-gradient-to-r from-pink-700 to-pink-500 text-white p-8 text-center rounded-2xl mb-4 shadow">
-          <div className="text-6xl mb-3">✅</div>
           <h2 className="text-3xl font-bold mb-1">
             {orders.length > 1 ? `${orders.length} Orders Confirmed!` : 'Your Order is Confirmed!'}
           </h2>
-          <p className="text-pink-100">Thank you for choosing Magic Pettals 🌸</p>
+          <p className="text-pink-100">Thank you for choosing Magic Petals 🌸</p>
           {orders.length > 1 && (
             <p className="text-pink-100 text-sm mt-3">
               Total: <strong className="text-white">BZD ${totalPrice}</strong>
@@ -71,7 +70,7 @@ function OrderConfirm() {
               <div className="flex justify-between items-start gap-3 pb-3 border-b border-pink-100">
                 <div>
                   <p className="text-gray-500 text-xs font-semibold uppercase">Product</p>
-                  <p className="font-semibold text-gray-800 mt-1">🌸 {order.product}</p>
+                  <p className="font-semibold text-gray-800 mt-1">{order.product}</p>
                 </div>
                 <p className="text-xl font-bold text-pink-600">
                   {typeof order.price === 'number' ? `BZD $${order.price}` : order.price}
@@ -98,7 +97,7 @@ function OrderConfirm() {
             onClick={() => navigate('/')}
             className="flex-1 bg-pink-600 hover:bg-pink-700 text-white font-semibold py-3 rounded-full transition"
           >
-            🏠 Back to Home
+            Back to Home
           </button>
           <button
             onClick={() => navigate('/catalog')}

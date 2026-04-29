@@ -10,7 +10,6 @@ function Navbar() {
   const isLoggedIn = !!session.email
   const isAdmin = session.role === 'admin'
 
-  // Listen for cart updates so the count refreshes instantly
   useEffect(() => {
     const refresh = () => setCartCount(getCartCount())
     window.addEventListener('cart-updated', refresh)
@@ -40,6 +39,10 @@ function Navbar() {
         <button onClick={() => navigate('/catalog')} className="hover:text-pink-600 transition">Shop</button>
         <button onClick={() => navigate('/book-bear')} className="hover:text-pink-600 transition">Bear Delivery</button>
         <button onClick={() => navigate('/faq')} className="hover:text-pink-600 transition">FAQ</button>
+
+        {isLoggedIn && !isAdmin && (
+          <button onClick={() => navigate('/my-orders')} className="hover:text-pink-600 transition">My Orders</button>
+        )}
 
         {/* Cart button */}
         <button

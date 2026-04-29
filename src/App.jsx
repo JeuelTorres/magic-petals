@@ -5,10 +5,11 @@ import Register from './pages/Register'
 import ProductCatalog from './pages/ProductCatalog'
 import BearBooking from './pages/BearBooking'
 import Cart from './pages/Cart'
+import MyOrders from './pages/MyOrders'   
 import OrderConfirm from './pages/OrderConfirm'
 import FAQ from './pages/FAQ'
-import AdminDashboard from './pages/AdminDashboard'
 import OrderManage from './pages/OrderManage'
+import AdminDashboard from './pages/AdminDashboard'
 import Reminders from './pages/Reminders'
 import Inventory from './pages/Inventory'
 import Reports from './pages/Reports'
@@ -27,6 +28,7 @@ function App() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/order-confirm" element={<OrderConfirm />} />
         <Route path="/faq" element={<FAQ />} />
+        <Route path="/my-orders" element={<MyOrders />} />  
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/orders" element={<OrderManage />} />
         <Route path="/admin/reminders" element={<Reminders />} />
