@@ -51,7 +51,7 @@ function FAQ() {
 
       {/* Hero */}
       <div className="bg-gradient-to-r from-pink-700 to-pink-500 text-white px-6 py-10 text-center">
-        <h2 className="text-3xl font-bold mb-2">💬 Frequently Asked Questions</h2>
+        <h2 className="text-3xl font-bold mb-2">Frequently Asked Questions</h2>
         <p className="text-pink-100">Got a question? We probably have an answer!</p>
       </div>
 
