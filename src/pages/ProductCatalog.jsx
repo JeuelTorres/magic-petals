@@ -400,7 +400,7 @@ function ProductCatalog() {
                     className="w-full border border-pink-200 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-pink-400"
                   />
                   {date && isClosed(date) && (
-                    <p className="text-red-500 text-xs mt-1 font-semibold">⛔ We are closed this day. Please pick another.</p>
+                    <p className="text-red-500 text-xs mt-1 font-semibold">We are closed this day. Please pick another.</p>
                   )}
                   {date && !isClosed(date) && (
                     <p className="text-green-600 text-xs mt-1">

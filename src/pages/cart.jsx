@@ -63,7 +63,7 @@ function Cart() {
       <div className="max-w-4xl mx-auto px-6 py-8">
 
         <div className="mb-6">
-          <h2 className="text-3xl font-bold text-gray-800">🛒 Your Cart</h2>
+          <h2 className="text-3xl font-bold text-gray-800">Your Cart</h2>
           <p className="text-gray-500">Review your items before placing your order</p>
         </div>
 
@@ -116,7 +116,7 @@ function Cart() {
                         onClick={() => handleRemove(item.cartId)}
                         className="text-xs bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded-full transition"
                       >
-                        🗑️ Remove
+                        Remove
                       </button>
                     </div>
 
@@ -179,7 +179,7 @@ function Cart() {
                 onClick={handleCheckout}
                 className="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 rounded-full transition text-lg"
               >
-                ✅ Place Order
+               Place Order
               </button>
               <button
                 onClick={() => navigate('/catalog')}
